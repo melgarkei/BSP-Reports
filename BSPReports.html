@@ -652,7 +652,6 @@
 
       pivotContainer.classList.remove('hidden');
 
-      // Group by location
       const pivotMap = {};
       let pivotGrandTotal = 0;
 
@@ -923,8 +922,8 @@
         cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
       });
 
-      // --- ADD PIVOT SUMMARY SECTION BELOW DETAILED TABLE IN TAB 1 ---
-      ws1.addRow([]); // Empty spacing row
+      // --- PIVOT SUMMARY SECTION BELOW DETAILED TABLE ---
+      ws1.addRow([]);
       ws1.addRow([]);
 
       const pivotTitleRow = ws1.addRow(['LOCATION PIVOT / SUMMARY']);
@@ -942,7 +941,6 @@
         cell.alignment = { horizontal: cell.col === 2 ? 'right' : 'left' };
       });
 
-      // Group location totals
       const pivotMap = {};
       acc.items.forEach(item => {
         const loc = item.location || 'Unassigned';
