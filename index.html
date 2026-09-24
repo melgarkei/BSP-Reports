@@ -358,31 +358,64 @@
           </table>
         </div>
 
-        <!-- Location Pivot Summary Table -->
-        <div id="pivotContainer" class="hidden border-t-4 border-almosafer-800 bg-slate-50 p-4">
-          <div class="mb-2 flex items-center space-x-2">
-            <i class="ph-bold ph-chart-pie text-almosafer-600 text-lg"></i>
-            <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">Location Pivot / Summary Breakdown</h3>
+        <!-- Location & Regional Pivot Summary Area -->
+        <div id="pivotContainer" class="hidden border-t-4 border-almosafer-800 bg-slate-50 p-6 space-y-6">
+          
+          <!-- City Level Pivot -->
+          <div>
+            <div class="mb-2 flex items-center space-x-2">
+              <i class="ph-bold ph-chart-pie text-almosafer-600 text-lg"></i>
+              <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">City Pivot Summary</h3>
+            </div>
+            <div class="overflow-x-auto max-w-md">
+              <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                <thead class="bg-almosafer-800 text-white font-bold uppercase">
+                  <tr>
+                    <th class="p-2.5">Location</th>
+                    <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
+                  </tr>
+                </thead>
+                <tbody id="pivotTableBody" class="divide-y divide-slate-200 font-mono">
+                  <!-- Dynamic City Rows -->
+                </tbody>
+                <tfoot class="bg-purple-100 border-t-2 border-purple-300 font-bold">
+                  <tr>
+                    <td class="p-2.5 text-slate-800">City Total:</td>
+                    <td class="p-2.5 text-right text-purple-900 font-extrabold" id="pivotTotalAmount">0.00</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
-          <div class="overflow-x-auto max-w-md">
-            <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-              <thead class="bg-almosafer-800 text-white font-bold uppercase">
-                <tr>
-                  <th class="p-2.5">Location</th>
-                  <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
-                </tr>
-              </thead>
-              <tbody id="pivotTableBody" class="divide-y divide-slate-200 font-mono">
-                <!-- Dynamic Pivot Rows -->
-              </tbody>
-              <tfoot class="bg-purple-100 border-t-2 border-purple-300 font-bold">
-                <tr>
-                  <td class="p-2.5 text-slate-800">Pivot Total:</td>
-                  <td class="p-2.5 text-right text-purple-900 font-extrabold" id="pivotTotalAmount">0.00</td>
-                </tr>
-              </tfoot>
-            </table>
+
+          <!-- Regional Zone Level Pivot -->
+          <div>
+            <div class="mb-2 flex items-center space-x-2">
+              <i class="ph-bold ph-map-trifold text-almosafer-600 text-lg"></i>
+              <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">Regional Pivot Summary (Saudi Arabia)</h3>
+            </div>
+            <div class="overflow-x-auto max-w-xl">
+              <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                <thead class="bg-almosafer-900 text-white font-bold uppercase">
+                  <tr>
+                    <th class="p-2.5">Regional Zone</th>
+                    <th class="p-2.5">Included Cities</th>
+                    <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
+                  </tr>
+                </thead>
+                <tbody id="regionalPivotTableBody" class="divide-y divide-slate-200 font-mono">
+                  <!-- Dynamic Regional Rows -->
+                </tbody>
+                <tfoot class="bg-emerald-100 border-t-2 border-emerald-300 font-bold">
+                  <tr>
+                    <td class="p-2.5 text-slate-800" colspan="2">Regional Total:</td>
+                    <td class="p-2.5 text-right text-emerald-900 font-extrabold" id="regionalPivotTotalAmount">0.00</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
+
         </div>
 
         <!-- Empty State -->
@@ -427,6 +460,35 @@
   </aside>
 
   <script>
+    // Saudi Arabia Geographic Region Lookup Engine
+    const REGION_MAP = {
+      'RIYADH': 'Central Region',
+      'BURAYDAH': 'Central Region',
+      'AL-QASSIM': 'Central Region',
+      'QASSIM': 'Central Region',
+      'HA\'IL': 'Central Region',
+      'HAIL': 'Central Region',
+      'JEDDAH': 'Western Region',
+      'MECCA': 'Western Region',
+      'MAKKAH': 'Western Region',
+      'MEDINA': 'Western Region',
+      'MADINAH': 'Western Region',
+      'TA\'IF': 'Western Region',
+      'TAIF': 'Western Region',
+      'HOFUF': 'Eastern Province',
+      'AL-HOFUF': 'Eastern Province',
+      'ALKHOBAR': 'Eastern Province',
+      'KHOBAR': 'Eastern Province',
+      'DAMMAM': 'Eastern Province',
+      'JUBAIL': 'Eastern Province',
+      'TABUK': 'Northern Region',
+      'JIZAN': 'Southern Region',
+      'JAZAN': 'Southern Region',
+      'ABHA': 'Southern Region',
+      'KHAMIS MUSHAIT': 'Southern Region',
+      'NAJRAN': 'Southern Region'
+    };
+
     // Configurable Account Settings
     const ACCOUNTS = {
       ksa: { 
@@ -796,8 +858,8 @@
 
       document.getElementById('tableTotalAmount').innerText = `${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${acc.currency}`;
 
-      // Render Pivot Table
-      renderPivotTable(acc.items, acc.currency);
+      // Render City & Regional Pivot Tables
+      renderPivotTables(acc.items, acc.currency);
 
       // Verification Banner
       crossCheckBanner.classList.remove('hidden');
@@ -810,10 +872,13 @@
       }
     }
 
-    function renderPivotTable(items, currency) {
+    function renderPivotTables(items, currency) {
       const pivotContainer = document.getElementById('pivotContainer');
       const pivotBody = document.getElementById('pivotTableBody');
+      const regionalBody = document.getElementById('regionalPivotTableBody');
+
       pivotBody.innerHTML = '';
+      regionalBody.innerHTML = '';
 
       if (!items.length) {
         pivotContainer.classList.add('hidden');
@@ -822,17 +887,34 @@
 
       pivotContainer.classList.remove('hidden');
 
-      const pivotMap = {};
-      let pivotGrandTotal = 0;
+      // 1. City Level Pivot
+      const cityMap = {};
+      let cityGrandTotal = 0;
+
+      // 2. Regional Level Pivot
+      const regionMap = {};
+      const regionCitiesMap = {};
+      let regionalGrandTotal = 0;
 
       items.forEach(item => {
         const loc = item.location || 'Unassigned';
-        pivotMap[loc] = (pivotMap[loc] || 0) + item.amount;
-        pivotGrandTotal += item.amount;
+        cityMap[loc] = (cityMap[loc] || 0) + item.amount;
+        cityGrandTotal += item.amount;
+
+        // Map City to Region
+        const upperLoc = loc.toUpperCase().trim();
+        const region = REGION_MAP[upperLoc] || 'Other / General';
+
+        regionMap[region] = (regionMap[region] || 0) + item.amount;
+        regionalGrandTotal += item.amount;
+
+        if (!regionCitiesMap[region]) regionCitiesMap[region] = new Set();
+        regionCitiesMap[region].add(loc);
       });
 
-      Object.keys(pivotMap).forEach(loc => {
-        const amt = pivotMap[loc];
+      // Render City Rows
+      Object.keys(cityMap).forEach(loc => {
+        const amt = cityMap[loc];
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
@@ -842,7 +924,23 @@
         pivotBody.appendChild(tr);
       });
 
-      document.getElementById('pivotTotalAmount').innerText = `${pivotGrandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}`;
+      document.getElementById('pivotTotalAmount').innerText = `${cityGrandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}`;
+
+      // Render Regional Rows
+      Object.keys(regionMap).forEach(region => {
+        const amt = regionMap[region];
+        const citiesStr = Array.from(regionCitiesMap[region]).join(', ');
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+        tr.innerHTML = `
+          <td class="p-2.5 font-bold text-slate-800">${region}</td>
+          <td class="p-2.5 text-slate-500 font-sans text-[11px]">${citiesStr}</td>
+          <td class="p-2.5 text-right font-extrabold ${amt < 0 ? 'text-coral-600' : 'text-emerald-600'}">${amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        `;
+        regionalBody.appendChild(tr);
+      });
+
+      document.getElementById('regionalPivotTotalAmount').innerText = `${regionalGrandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}`;
     }
 
     function updateItem(index, field, val) {
@@ -1029,7 +1127,7 @@
       if (item) exportSingleReportExcel(item);
     }
 
-    // EXCEL EXPORT GENERATOR
+    // EXCEL EXPORT GENERATOR WITH DUAL CITY & REGIONAL PIVOTS
     async function exportSingleReportExcel(record) {
       const acc = ACCOUNTS[record.accountId] || ACCOUNTS[activeAccountKey];
       const items = record.items || acc.items;
@@ -1047,7 +1145,7 @@
       const lightRowColor = 'FFF8FAFC';
       const totalFillColor = 'FFD9D2E9';
 
-      // TAB 1: LOCATION SUMMARY WITH PIVOT
+      // TAB 1: LOCATION SUMMARY WITH CITY & REGIONAL PIVOTS
       const ws1 = workbook.addWorksheet('Location Summary', { views: [{ showGridLines: true }] });
 
       const r1 = ws1.addRow([meta.companyName]);
@@ -1102,33 +1200,33 @@
         cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
       });
 
-      // --- PIVOT SUMMARY SECTION BELOW DETAILED TABLE ---
+      // --- CITY PIVOT SUMMARY SECTION ---
       ws1.addRow([]);
       ws1.addRow([]);
 
-      const pivotTitleRow = ws1.addRow(['LOCATION PIVOT / SUMMARY']);
-      ws1.mergeCells(pivotTitleRow.number, 1, pivotTitleRow.number, 2);
-      const pTitleCell = pivotTitleRow.getCell(1);
-      pTitleCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-      pTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: darkTealColor } };
-      pTitleCell.alignment = { horizontal: 'center' };
+      const cityPivotTitleRow = ws1.addRow(['CITY PIVOT / SUMMARY']);
+      ws1.mergeCells(cityPivotTitleRow.number, 1, cityPivotTitleRow.number, 2);
+      const cTitleCell = cityPivotTitleRow.getCell(1);
+      cTitleCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+      cTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: darkTealColor } };
+      cTitleCell.alignment = { horizontal: 'center' };
 
-      const pivotHeaderRow = ws1.addRow(['Location', `Total Amount (${acc.currency})`]);
-      pivotHeaderRow.eachCell(cell => {
+      const cityPivotHeaderRow = ws1.addRow(['Location', `Total Amount (${acc.currency})`]);
+      cityPivotHeaderRow.eachCell(cell => {
         cell.font = { name: 'Calibri', size: 10, bold: true };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
         cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
         cell.alignment = { horizontal: cell.col === 2 ? 'right' : 'left' };
       });
 
-      const pivotMap = {};
+      const cityMap = {};
       items.forEach(item => {
         const loc = item.location || 'Unassigned';
-        pivotMap[loc] = (pivotMap[loc] || 0) + item.amount;
+        cityMap[loc] = (cityMap[loc] || 0) + item.amount;
       });
 
-      Object.keys(pivotMap).forEach(loc => {
-        const pRow = ws1.addRow([loc, pivotMap[loc]]);
+      Object.keys(cityMap).forEach(loc => {
+        const pRow = ws1.addRow([loc, cityMap[loc]]);
         pRow.getCell(1).alignment = { horizontal: 'left' };
         pRow.getCell(2).alignment = { horizontal: 'right' };
         pRow.getCell(2).numFmt = '#,##0.00';
@@ -1137,19 +1235,80 @@
         });
       });
 
-      const pTotalRow = ws1.addRow(['Pivot Total:', totalAmount]);
-      pTotalRow.getCell(1).font = { name: 'Calibri', size: 11, bold: true };
-      pTotalRow.getCell(2).font = { name: 'Calibri', size: 11, bold: true };
-      pTotalRow.getCell(2).numFmt = '#,##0.00';
-      pTotalRow.getCell(2).alignment = { horizontal: 'right' };
-      pTotalRow.eachCell(cell => {
+      const cityPTotalRow = ws1.addRow(['City Pivot Total:', totalAmount]);
+      cityPTotalRow.getCell(1).font = { name: 'Calibri', size: 11, bold: true };
+      cityPTotalRow.getCell(2).font = { name: 'Calibri', size: 11, bold: true };
+      cityPTotalRow.getCell(2).numFmt = '#,##0.00';
+      cityPTotalRow.getCell(2).alignment = { horizontal: 'right' };
+      cityPTotalRow.eachCell(cell => {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: totalFillColor } };
         cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
       });
 
-      ws1.getColumn(1).width = 22;
-      ws1.getColumn(2).width = 28;
-      ws1.getColumn(3).width = 22;
+      // --- REGIONAL PIVOT SUMMARY SECTION ---
+      ws1.addRow([]);
+      ws1.addRow([]);
+
+      const regPivotTitleRow = ws1.addRow(['REGIONAL PIVOT / SUMMARY (SAUDI ARABIA)']);
+      ws1.mergeCells(regPivotTitleRow.number, 1, regPivotTitleRow.number, 3);
+      const rTitleCell = regPivotTitleRow.getCell(1);
+      rTitleCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+      rTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: tealHeaderColor } };
+      rTitleCell.alignment = { horizontal: 'center' };
+
+      const regPivotHeaderRow = ws1.addRow(['Regional Zone', 'Included Cities', `Total Amount (${acc.currency})`]);
+      regPivotHeaderRow.eachCell(cell => {
+        cell.font = { name: 'Calibri', size: 10, bold: true };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+        cell.alignment = { horizontal: cell.col === 3 ? 'right' : 'left' };
+      });
+
+      const regionMap = {};
+      const regionCitiesMap = {};
+
+      items.forEach(item => {
+        const loc = item.location || 'Unassigned';
+        const upperLoc = loc.toUpperCase().trim();
+        const region = REGION_MAP[upperLoc] || 'Other / General';
+
+        regionMap[region] = (regionMap[region] || 0) + item.amount;
+        if (!regionCitiesMap[region]) regionCitiesMap[region] = new Set();
+        regionCitiesMap[region].add(loc);
+      });
+
+      Object.keys(regionMap).forEach(region => {
+        const citiesStr = Array.from(regionCitiesMap[region]).join(', ');
+        const rRow = ws1.addRow([region, citiesStr, regionMap[region]]);
+        rRow.getCell(1).alignment = { horizontal: 'left' };
+        rRow.getCell(2).alignment = { horizontal: 'left' };
+        rRow.getCell(3).alignment = { horizontal: 'right' };
+        rRow.getCell(3).numFmt = '#,##0.00';
+        rRow.eachCell(cell => {
+          cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+        });
+      });
+
+      const regPTotalRow = ws1.addRow(['Regional Pivot Total:', '', totalAmount]);
+      ws1.mergeCells(regPTotalRow.number, 1, regPTotalRow.number, 2);
+      
+      const rTotLabel = regPTotalRow.getCell(1);
+      rTotLabel.font = { name: 'Calibri', size: 11, bold: true };
+      rTotLabel.alignment = { horizontal: 'center' };
+
+      const rTotVal = regPTotalRow.getCell(3);
+      rTotVal.font = { name: 'Calibri', size: 11, bold: true };
+      rTotVal.numFmt = '#,##0.00';
+      rTotVal.alignment = { horizontal: 'right' };
+
+      regPTotalRow.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } }; // Soft green fill
+        cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
+      });
+
+      ws1.getColumn(1).width = 24;
+      ws1.getColumn(2).width = 32;
+      ws1.getColumn(3).width = 24;
 
       // TAB 2: VENDOR POSTING SUMMARY
       const ws2 = workbook.addWorksheet('Vendor Posting Summary', { views: [{ showGridLines: true }] });
