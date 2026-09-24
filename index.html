@@ -358,64 +358,66 @@
           </table>
         </div>
 
-        <!-- Location & Regional Pivot Summary Area -->
-        <div id="pivotContainer" class="hidden border-t-4 border-almosafer-800 bg-slate-50 p-6 space-y-6">
-          
-          <!-- City Level Pivot -->
-          <div>
-            <div class="mb-2 flex items-center space-x-2">
-              <i class="ph-bold ph-chart-pie text-almosafer-600 text-lg"></i>
-              <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">City Pivot Summary</h3>
+        <!-- SIDE-BY-SIDE Location & Regional Pivot Summary Area -->
+        <div id="pivotContainer" class="hidden border-t-4 border-almosafer-800 bg-slate-50 p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            
+            <!-- City Level Pivot (Left Column) -->
+            <div class="flex flex-col h-full">
+              <div class="mb-2 flex items-center space-x-2">
+                <i class="ph-bold ph-chart-pie text-almosafer-600 text-lg"></i>
+                <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">City Pivot Summary</h3>
+              </div>
+              <div class="overflow-x-auto w-full">
+                <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                  <thead class="bg-almosafer-800 text-white font-bold uppercase">
+                    <tr>
+                      <th class="p-2.5">Location</th>
+                      <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pivotTableBody" class="divide-y divide-slate-200 font-mono">
+                    <!-- Dynamic City Rows -->
+                  </tbody>
+                  <tfoot class="bg-purple-100 border-t-2 border-purple-300 font-bold">
+                    <tr>
+                      <td class="p-2.5 text-slate-800">City Total:</td>
+                      <td class="p-2.5 text-right text-purple-900 font-extrabold" id="pivotTotalAmount">0.00</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
-            <div class="overflow-x-auto max-w-md">
-              <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                <thead class="bg-almosafer-800 text-white font-bold uppercase">
-                  <tr>
-                    <th class="p-2.5">Location</th>
-                    <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
-                  </tr>
-                </thead>
-                <tbody id="pivotTableBody" class="divide-y divide-slate-200 font-mono">
-                  <!-- Dynamic City Rows -->
-                </tbody>
-                <tfoot class="bg-purple-100 border-t-2 border-purple-300 font-bold">
-                  <tr>
-                    <td class="p-2.5 text-slate-800">City Total:</td>
-                    <td class="p-2.5 text-right text-purple-900 font-extrabold" id="pivotTotalAmount">0.00</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
 
-          <!-- Regional Zone Level Pivot -->
-          <div>
-            <div class="mb-2 flex items-center space-x-2">
-              <i class="ph-bold ph-map-trifold text-almosafer-600 text-lg"></i>
-              <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">Regional Pivot Summary (Saudi Arabia)</h3>
+            <!-- Regional Zone Level Pivot (Right Column) -->
+            <div class="flex flex-col h-full">
+              <div class="mb-2 flex items-center space-x-2">
+                <i class="ph-bold ph-map-trifold text-almosafer-600 text-lg"></i>
+                <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">Regional Pivot Summary (Saudi Arabia)</h3>
+              </div>
+              <div class="overflow-x-auto w-full">
+                <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                  <thead class="bg-almosafer-900 text-white font-bold uppercase">
+                    <tr>
+                      <th class="p-2.5">Regional Zone</th>
+                      <th class="p-2.5">Included Cities</th>
+                      <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="regionalPivotTableBody" class="divide-y divide-slate-200 font-mono">
+                    <!-- Dynamic Regional Rows -->
+                  </tbody>
+                  <tfoot class="bg-emerald-100 border-t-2 border-emerald-300 font-bold">
+                    <tr>
+                      <td class="p-2.5 text-slate-800" colspan="2">Regional Total:</td>
+                      <td class="p-2.5 text-right text-emerald-900 font-extrabold" id="regionalPivotTotalAmount">0.00</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
-            <div class="overflow-x-auto max-w-xl">
-              <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                <thead class="bg-almosafer-900 text-white font-bold uppercase">
-                  <tr>
-                    <th class="p-2.5">Regional Zone</th>
-                    <th class="p-2.5">Included Cities</th>
-                    <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
-                  </tr>
-                </thead>
-                <tbody id="regionalPivotTableBody" class="divide-y divide-slate-200 font-mono">
-                  <!-- Dynamic Regional Rows -->
-                </tbody>
-                <tfoot class="bg-emerald-100 border-t-2 border-emerald-300 font-bold">
-                  <tr>
-                    <td class="p-2.5 text-slate-800" colspan="2">Regional Total:</td>
-                    <td class="p-2.5 text-right text-emerald-900 font-extrabold" id="regionalPivotTotalAmount">0.00</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
 
+          </div>
         </div>
 
         <!-- Empty State -->
@@ -858,7 +860,7 @@
 
       document.getElementById('tableTotalAmount').innerText = `${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${acc.currency}`;
 
-      // Render City & Regional Pivot Tables
+      // Render City & Regional Pivot Tables Side-by-Side
       renderPivotTables(acc.items, acc.currency);
 
       // Verification Banner
