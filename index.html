@@ -377,7 +377,7 @@
           currentItem = acc.airlineSalesItems.find(a => a.code === twoCharCode);
         }
 
-        // Process line data for active airline
+        // Process line data for the active airline
         if (currentItem) {
           let decs = (line.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
@@ -397,7 +397,6 @@
               currentItem.cash = decs[decs.length - 1]; // Balance Payable on TOTAL line overrides CASH line
               extractedAny = true;
             }
-            // Reset currentItem at end of block
             currentItem = null;
           }
         }
