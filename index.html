@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Summary section processed successfully.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed from summary section.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -345,60 +345,39 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // LINEAR STATE-MACHINE PARSER ENGINE (ROBUST & SAFE)
+    // STRICT REGEX SUMMARY BLOCK PARSER
     function parseAirlineSalesPDF(rawText, acc) {
-      extractCommonMeta(rawText, rawText.replace(/\n/g, ' ').replace(/\s+/g, ' '), acc);
+      const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
+      extractCommonMeta(rawText, flatText, acc);
       acc.airlineSalesItems = getFreshAirlineSales();
 
       let extractedAny = false;
 
-      // 1. Locate start of "7120167 TOTALS" summary section
+      // Locate start of "7120167 TOTALS" section
       let totalsPos = rawText.indexOf("7120167 TOTALS");
       let summaryText = totalsPos !== -1 ? rawText.substring(totalsPos) : rawText;
 
-      // 2. Strip repeating header/footer page-break noise (re-connects split blocks like 055 AZ)
-      summaryText = summaryText.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
-      summaryText = summaryText.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
-      summaryText = summaryText.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
-      
-      // 3. Clean fused decimal strings (e.g. -684.00001 -> -684.00)
+      // Fix fused decimals (e.g. -684.00001 -> -684.00)
       summaryText = summaryText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
 
-      let lines = summaryText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      let currentItem = null;
+      // Exact regex matching ALL 8 decimals on the TOTAL line of the grand summary block
+      const totalBlockPattern = /\b(\d{3})\b\s*([A-Za-z0-9\s.\-(/&]{2,60}?)\s+([\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s*CASH\s+(?:([\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s*CARD\s+)?TOTAL\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+(\d+)\b/g;
 
-      for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
+      let match;
+      while ((match = totalBlockPattern.exec(summaryText)) !== null) {
+        let numCode = match[1];
+        let cardIssues = match[5] ? parseFloat(match[5].replace(/,/g, '')) : 0.0;
+        let cardRefunds = match[6] ? parseFloat(match[6].replace(/,/g, '')) : 0.0;
+        let balancePayable = parseFloat(match[14].replace(/,/g, '')); // 8th decimal = Balance Payable (CASH)
 
-        // Match line starting with 3-digit prefix (e.g., 001, 047, 055, 065)
-        let prefixMatch = line.match(/^(\d{3})\b/);
-        if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
-          let twoCharCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
-          currentItem = acc.airlineSalesItems.find(a => a.code === twoCharCode);
-        }
-
-        // Process line data for the active airline
-        if (currentItem) {
-          let decs = (line.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
-
-          if (line.includes('CASH') && !line.startsWith('TOTAL')) {
-            if (decs.length >= 1) {
-              currentItem.cash = decs[decs.length - 1]; // Grabs 6,460.00 for TAP Portugal directly
-              extractedAny = true;
-            }
-          }
-          else if (line.includes('CARD') && !line.startsWith('TOTAL')) {
-            if (decs.length >= 1) currentItem.cc_issues = decs[0];
-            if (decs.length >= 2) currentItem.refunds = decs[1];
+        let twoCharCode = NUMERIC_PREFIX_MAP[numCode];
+        if (twoCharCode) {
+          let item = acc.airlineSalesItems.find(a => a.code === twoCharCode);
+          if (item) {
             extractedAny = true;
-          }
-          else if (line.startsWith('TOTAL')) {
-            if (decs.length >= 1) {
-              currentItem.cash = decs[decs.length - 1]; // Balance Payable on TOTAL line overrides CASH line
-              extractedAny = true;
-            }
-            // Reset currentItem at the end of block
-            currentItem = null;
+            item.cash = balancePayable;
+            item.cc_issues = cardIssues;
+            item.refunds = cardRefunds;
           }
         }
       }
@@ -615,7 +594,7 @@
       renderTabs(); renderActiveAccountData();
     }
 
-    // EXCEL EXPORTS
+    // EXCEL EXPORTS (NO IATA COLUMN IN EXCEL)
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
 
