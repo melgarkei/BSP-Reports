@@ -345,7 +345,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // UNIVERSAL SEQUENTIAL BLOCK PARSER
+    // LINEAR SEQUENTIAL SUMMARY PARSER ENGINE
     function parseAirlineSalesPDF(rawText, acc) {
       extractCommonMeta(rawText, rawText.replace(/\n/g, ' ').replace(/\s+/g, ' '), acc);
       acc.airlineSalesItems = getFreshAirlineSales();
@@ -356,7 +356,7 @@
       let totalsPos = rawText.indexOf("7120167 TOTALS");
       let summaryText = totalsPos !== -1 ? rawText.substring(totalsPos) : rawText;
 
-      // STRIP PAGE-BREAK HEADER/FOOTER NOISE FIRST (Re-connects split blocks like 055 AZ across Page 40/41)
+      // STRIP PAGE-BREAK HEADER/FOOTER NOISE (Re-connects split blocks like 055 AZ)
       summaryText = summaryText.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
       summaryText = summaryText.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
       summaryText = summaryText.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
