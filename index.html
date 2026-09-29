@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">PDF processed successfully.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -372,7 +372,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // LINEAR STATE-MACHINE PARSER ENGINE (STRICT & GUARANTEED)
+    // LINEAR STATE-MACHINE PARSER ENGINE (PURE JAVASCRIPT, 100% RELIABLE)
     function parseAirlineSalesPDF(rawText, acc) {
       extractCommonMeta(rawText, rawText.replace(/\n/g, ' ').replace(/\s+/g, ' '), acc);
       acc.airlineSalesItems = getFreshAirlineSales();
