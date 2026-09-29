@@ -39,7 +39,7 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-slate-50 text-slate-800 relative">
 
-  <!-- Top Navigation Header -->
+  <!-- Header -->
   <header class="bg-almosafer-900 border-b border-almosafer-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
@@ -58,23 +58,20 @@
 
         <div class="flex items-center space-x-3">
           <button onclick="toggleHistoryDrawer()" class="bg-almosafer-700 hover:bg-almosafer-600 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 transition border border-almosafer-500/30">
-            <i class="ph-bold ph-clock-counter-clockwise text-lg"></i>
-            <span>History</span>
+            <i class="ph-bold ph-clock-counter-clockwise text-lg"></i><span>History</span>
           </button>
           <button onclick="exportTwoTabExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 transition shadow-md">
-            <i class="ph-bold ph-file-xls text-lg"></i>
-            <span>Export Excel (.xlsx)</span>
+            <i class="ph-bold ph-file-xls text-lg"></i><span>Export Excel (.xlsx)</span>
           </button>
           <button onclick="window.print()" class="bg-almosafer-800 hover:bg-almosafer-700 text-slate-100 px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 border border-almosafer-700 transition">
-            <i class="ph-bold ph-printer text-lg"></i>
-            <span>Print</span>
+            <i class="ph-bold ph-printer text-lg"></i><span>Print</span>
           </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Top View Switcher & Account Bar -->
+  <!-- Sub-Bar Navigation -->
   <div class="bg-white border-b border-slate-200 sticky top-16 z-20 no-print shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -336,7 +333,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // TOKEN-BASED BLOCK PARSER FOR AIRLINE SALES
+    // ACCURATE AIRLINE SALES PARSER HANDLES PDF.JS MERGED DECIMAL SUFFIXES
     function parseAirlineSalesPDF(rawText, acc) {
       const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
@@ -347,17 +344,16 @@
       let agents = []; let m;
       while ((m = agentRegex.exec(flatText)) !== null) agents.push({ code: m[1], index: m.index });
 
-      // Anchor search using 3-digit numeric airline prefix followed by 2-character code
-      const airlineAnchorRegex = /\b(\d{3})\s+([A-Z0-9]{2})\b/g;
+      // Anchor search using 2-character code OR 3-digit numeric code
+      const airlineAnchorRegex = /(?:\b(\d{3})\s+([A-Z0-9]{2})\b|\b([A-Z0-9]{2})\b\s+[A-Za-z.\s]{3,30}\s+(?:CASH|CARD))/g;
       let matches = [];
       let match;
 
       while ((match = airlineAnchorRegex.exec(flatText)) !== null) {
-        matches.push({
-          numCode: match[1],
-          strCode: match[2].toUpperCase(),
-          index: match.index
-        });
+        let code = (match[2] || match[3] || '').toUpperCase();
+        if (code && AIRLINE_TEMPLATE_DATA.some(a => a.code === code)) {
+          matches.push({ strCode: code, index: match.index });
+        }
       }
 
       let extractedAny = false;
@@ -365,15 +361,13 @@
       for (let i = 0; i < matches.length; i++) {
         const curr = matches[i];
         const nextIndex = (i < matches.length - 1) ? matches[i + 1].index : flatText.length;
-        // Limit slice length to prevent overshooting into next pages
-        const blockText = flatText.substring(curr.index, Math.min(nextIndex, curr.index + 400));
+        const blockText = flatText.substring(curr.index, Math.min(nextIndex, curr.index + 350));
 
         let currentIataAgent = acc.meta.iataAccount || '71-2 0167 5';
         for (let k = agents.length - 1; k >= 0; k--) {
           if (agents[k].index < curr.index) { currentIataAgent = agents[k].code; break; }
         }
 
-        // Look for FOP markers inside this block
         const fopMatches = [...blockText.matchAll(/\b(CASH|CARD)\b/gi)];
 
         if (fopMatches.length > 0) {
@@ -383,14 +377,21 @@
             const subNextIndex = (fIdx < fopMatches.length - 1) ? fopMatches[fIdx + 1].index : blockText.length;
             const subChunk = blockText.substring(fopIndex, subNextIndex);
 
-            const decimals = subChunk.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+            // Clean PDF.js merged trailing digits from decimal strings (e.g., "-21,014.96065" -> "-21,014.96")
+            let rawDecimals = subChunk.match(/[-+]?[\d,]+\.\d+/g) || [];
+            let decimals = rawDecimals.map(d => {
+              let idx = d.indexOf('.');
+              if (idx !== -1 && d.length > idx + 3) {
+                return d.substring(0, idx + 3);
+              }
+              return d;
+            });
 
             if (decimals.length >= 1) {
               extractedAny = true;
               let item = acc.airlineSalesItems.find(a => a.code === curr.strCode);
 
               if (!item) {
-                // Fallback for airline not present in default template
                 item = { code: curr.strCode, name: curr.strCode, iataCode: currentIataAgent, cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
                 acc.airlineSalesItems.push(item);
               } else {
@@ -403,6 +404,7 @@
                 item.cc_issues += issues;
                 item.refunds += refunds;
               } else if (fop === 'CASH') {
+                // Rule: CASH column gets BALANCE PAYABLE (the last decimal figure)
                 const balancePayable = parseFloat(decimals[decimals.length - 1].replace(/,/g, ''));
                 item.cash += balancePayable;
               }
@@ -497,8 +499,8 @@
 
         tableColHeaders.innerHTML = `
           <th class="p-3">CODE</th><th class="p-3">AIRLINE NAME</th><th class="p-3 text-center">IATA NO.</th>
-          <th class="p-3 text-right">CASH</th><th class="p-3 text-right">CC ISSUES</th>
-          <th class="p-3 text-right">REFUNDS</th><th class="p-3 text-right">NET TOTAL</th>
+          <th class="p-3 text-right">CASH</th><th class="p-3 text-right">INCENTIVES</th><th class="p-3 text-right">CC ISSUES</th>
+          <th class="p-3 text-right">REFUNDS</th><th class="p-3 text-right">NET CC SALES</th><th class="p-3 text-right">TOTAL</th>
         `;
 
         const hasSalesData = acc.airlineSalesItems.some(i => i.cash || i.cc_issues || i.refunds);
@@ -506,7 +508,8 @@
         document.getElementById('crossCheckBanner').classList.toggle('hidden', !hasSalesData);
 
         acc.airlineSalesItems.forEach(item => {
-          const total = item.cash + item.cc_issues + item.refunds;
+          const netCcSales = item.cc_issues + item.refunds;
+          const total = item.cash + item.incentives + netCcSales;
           const isNonZero = item.cash !== 0 || item.cc_issues !== 0 || item.refunds !== 0;
           
           const tr = document.createElement('tr');
@@ -517,8 +520,10 @@
             <td class="p-3 font-bold ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
             <td class="p-3 text-slate-500 text-center text-[10px] whitespace-nowrap">${item.iataCode || '---'}</td>
             <td class="p-3 text-right ${item.cash ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right ${item.incentives ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.incentives.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.refunds ? 'text-coral-600 font-bold' : 'text-slate-400'}">${item.refunds.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right font-bold ${netCcSales < 0 ? 'text-coral-600' : 'text-emerald-600'}">${netCcSales.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right font-black ${isNonZero ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100/50'}">${total.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
           `;
           tbody.appendChild(tr);
