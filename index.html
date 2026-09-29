@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Summary section processed using token-matching regex.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Summary section processed successfully.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -345,70 +345,63 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // REGEX TOKEN SUMMARY PARSER ENGINE
+    // LINEAR STATE-MACHINE PARSER ENGINE (ROBUST & SAFE)
     function parseAirlineSalesPDF(rawText, acc) {
-      // Clean fused decimal strings
-      let cleanText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
-      let flatText = cleanText.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ');
-      
-      extractCommonMeta(rawText, flatText, acc);
+      extractCommonMeta(rawText, rawText.replace(/\n/g, ' ').replace(/\s+/g, ' '), acc);
       acc.airlineSalesItems = getFreshAirlineSales();
 
       let extractedAny = false;
 
-      // Locate summary section
-      let matchPos = cleanText.search(/7120167\s*TOTALS/i);
-      let summarySection = matchPos !== -1 ? cleanText.substring(matchPos) : cleanText;
+      // 1. Locate start of "7120167 TOTALS" summary section
+      let totalsPos = rawText.indexOf("7120167 TOTALS");
+      let summaryText = totalsPos !== -1 ? rawText.substring(totalsPos) : rawText;
 
-      // Strip page header/footer noise so split blocks like 055 AZ reconnect
-      summarySection = summarySection.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
-      summarySection = summarySection.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
-      summarySection = summarySection.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
+      // 2. Strip repeating header/footer page-break noise (re-connects split blocks like 055 AZ)
+      summaryText = summaryText.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
+      summaryText = summaryText.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
+      summaryText = summaryText.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
+      
+      // 3. Clean fused decimal strings (e.g. -684.00001 -> -684.00)
+      summaryText = summaryText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
 
-      AIRLINE_TEMPLATE_DATA.forEach(airline => {
-        let numCode = Object.keys(NUMERIC_PREFIX_MAP).find(k => NUMERIC_PREFIX_MAP[k] === airline.code);
-        if (!numCode) return;
+      let lines = summaryText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let currentItem = null;
 
-        let blockRegex = new RegExp(`\\b${numCode}\\b[\\s\\S]*?(?=\\b\\d{3}\\b|WEBSALES|TOTAL Airlines|$)`, 'i');
-        let blockMatch = summarySection.match(blockRegex);
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
 
-        if (blockMatch) {
-          let blockStr = blockMatch[0];
-          let cashBal = 0.0, cardIss = 0.0, cardRef = 0.0;
-          let foundData = false;
+        // Match line starting with 3-digit prefix (e.g., 001, 047, 055, 065)
+        let prefixMatch = line.match(/^(\d{3})\b/);
+        if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
+          let twoCharCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
+          currentItem = acc.airlineSalesItems.find(a => a.code === twoCharCode);
+        }
 
-          let cardLineMatch = blockStr.match(/CARD[\s\S]*?([-+]?[\d,]+\.\d{2})(?:\s+([-+]?[\d,]+\.\d{2}))?/i);
-          if (cardLineMatch) {
-            foundData = true;
-            if (cardLineMatch[1]) cardIss = parseFloat(cardLineMatch[1].replace(/,/g, ''));
-            if (cardLineMatch[2]) cardRef = parseFloat(cardLineMatch[2].replace(/,/g, ''));
-          }
+        // Process line data for the active airline
+        if (currentItem) {
+          let decs = (line.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
-          let totalLineMatch = blockStr.match(/TOTAL[\s\S]*?([-+]?[\d,]+\.\d{2})\s+\d+/i);
-          if (totalLineMatch) {
-            foundData = true;
-            let decs = totalLineMatch[0].match(/[-+]?[\d,]+\.\d{2}/g) || [];
-            if (decs.length >= 1) cashBal = parseFloat(decs[decs.length - 1].replace(/,/g, ''));
-          } else {
-            let cashLineMatch = blockStr.match(/CASH[\s\S]*?([-+]?[\d,]+\.\d{2})/i);
-            if (cashLineMatch) {
-              foundData = true;
-              let decs = cashLineMatch[0].match(/[-+]?[\d,]+\.\d{2}/g) || [];
-              if (decs.length >= 1) cashBal = parseFloat(decs[decs.length - 1].replace(/,/g, ''));
+          if (line.includes('CASH') && !line.startsWith('TOTAL')) {
+            if (decs.length >= 1) {
+              currentItem.cash = decs[decs.length - 1]; // Grabs 6,460.00 for TAP Portugal directly
+              extractedAny = true;
             }
           }
-
-          if (foundData) {
+          else if (line.includes('CARD') && !line.startsWith('TOTAL')) {
+            if (decs.length >= 1) currentItem.cc_issues = decs[0];
+            if (decs.length >= 2) currentItem.refunds = decs[1];
             extractedAny = true;
-            let item = acc.airlineSalesItems.find(a => a.code === airline.code);
-            if (item) {
-              item.cash = cashBal;
-              item.cc_issues = cardIss;
-              item.refunds = cardRef;
+          }
+          else if (line.startsWith('TOTAL')) {
+            if (decs.length >= 1) {
+              currentItem.cash = decs[decs.length - 1]; // Balance Payable on TOTAL line overrides CASH line
+              extractedAny = true;
             }
+            // Reset currentItem at the end of block
+            currentItem = null;
           }
         }
-      });
+      }
 
       if (extractedAny) {
         saveCurrentToHistory();
@@ -622,7 +615,7 @@
       renderTabs(); renderActiveAccountData();
     }
 
-    // EXCEL EXPORTS (NO IATA COLUMN IN EXCEL)
+    // EXCEL EXPORTS
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
 
