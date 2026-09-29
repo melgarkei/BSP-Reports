@@ -345,7 +345,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // ACCURATE CONSOLIDATED BLOCK PARSER FOR AIRLINE SALES
+    // ACCURATE CONSOLIDATED BLOCK PARSER WITH SPACING FIX
     function parseAirlineSalesPDF(rawText, acc) {
       const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
@@ -357,32 +357,34 @@
       let pos = rawText.indexOf("7120167 TOTALS");
       if (pos !== -1) {
         let totSec = rawText.substring(pos);
-        // Split strictly into airline blocks by 3-digit numeric prefix at line start
-        let blocks = totSec.split(/\n(?=\d{3}\b)/);
+        // SPLIT BY SPACES OR NEWLINES BEFORE 3-DIGIT PREFIX
+        let blocks = totSec.split(/(?:\n|\s+)(?=\d{3}\b)/);
 
         blocks.forEach(b => {
-          let lines = b.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-          if (lines.length === 0) return;
-
-          let firstLine = lines[0];
-          let m = firstLine.match(/^(\d{3})\b/);
+          let strBlock = b.trim();
+          let m = strBlock.match(/^(\d{3})\b/);
           if (m) {
             let numCode = m[1];
             let twoCharCode = NUMERIC_PREFIX_MAP[numCode];
 
             let cardIss = 0.0, cardRef = 0.0, balPay = 0.0;
 
-            lines.forEach(bl => {
-              if (bl.includes('CARD')) {
-                let decs = bl.match(/[-+]?[\d,]+\.\d{2}/g) || [];
-                if (decs.length >= 1) cardIss = parseFloat(decs[0].replace(/,/g, ''));
-                if (decs.length >= 2) cardRef = parseFloat(decs[1].replace(/,/g, ''));
+            // Extract CARD line numbers
+            let cardMatch = strBlock.match(/CARD[\s\S]*?([-+]?[\d,]+\.\d{2})(?:\s+([-+]?[\d,]+\.\d{2}))?/i);
+            if (cardMatch) {
+              if (cardMatch[1]) cardIss = parseFloat(cardMatch[1].replace(/,/g, ''));
+              if (cardMatch[2]) cardRef = parseFloat(cardMatch[2].replace(/,/g, ''));
+            }
+
+            // Extract Balance Payable from TOTAL line
+            let totalMatch = strBlock.match(/TOTAL[\s\S]*?([-+]?[\d,]+\.\d{2})/gi);
+            if (totalMatch) {
+              let lastTotalLine = totalMatch[totalMatch.length - 1];
+              let decs = lastTotalLine.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+              if (decs.length >= 1) {
+                balPay = parseFloat(decs[decs.length - 1].replace(/,/g, ''));
               }
-              if (bl.startsWith('TOTAL')) {
-                let decs = bl.match(/[-+]?[\d,]+\.\d{2}/g) || [];
-                if (decs.length >= 1) balPay = parseFloat(decs[decs.length - 1].replace(/,/g, ''));
-              }
-            });
+            }
 
             if (twoCharCode) {
               let item = acc.airlineSalesItems.find(a => a.code === twoCharCode);
@@ -397,7 +399,7 @@
         });
       }
 
-      // Fallback Engine: Page-by-page row aggregation across sub-offices if Grand Summary is absent
+      // Fallback Engine: Row-by-row scanning if grand summary section is absent
       if (!extractedAny) {
         const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
         const lines = cleanRawText.split('\n');
