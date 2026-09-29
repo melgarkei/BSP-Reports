@@ -39,13 +39,19 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-slate-50 text-slate-800 relative">
 
+  <!-- Navigation Header -->
   <header class="bg-almosafer-900 border-b border-almosafer-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center space-x-3">
-          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center"><i class="ph-bold ph-airplane text-2xl"></i></div>
+          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center">
+            <i class="ph-bold ph-airplane text-2xl"></i>
+          </div>
           <div>
-            <div class="flex items-center space-x-2"><h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1><span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span></div>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1>
+              <span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span>
+            </div>
             <p class="text-xs text-almosafer-100/80 font-medium">Reports Extractor</p>
           </div>
         </div>
@@ -65,6 +71,7 @@
     </div>
   </header>
 
+  <!-- View Switcher & Account Bar -->
   <div class="bg-white border-b border-slate-200 sticky top-16 z-20 no-print shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -93,6 +100,8 @@
   </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- DASHBOARD VIEW -->
     <div id="viewDashboard" class="hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-emerald-500">
@@ -110,7 +119,9 @@
       </div>
     </div>
 
+    <!-- REPORTS VIEW -->
     <div id="viewReports" class="space-y-6">
+
       <div class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-almosafer-600 transition-colors relative no-print cursor-pointer shadow-sm" id="dropZone">
         <input type="file" id="pdfFileInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple>
         <div class="flex flex-col items-center justify-center space-y-2">
@@ -135,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data matched and loaded for current report.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -206,7 +217,6 @@
       { code: 'AA', name: 'AMERICAN AIRLINES' }, { code: 'CO', name: 'CONTINENTAL AIRLINES' }, { code: 'DL', name: 'DELTA AIRLINES' }, { code: 'Z5', name: 'GMG AIRLINE' }, { code: 'AC', name: 'AIR CANADA' }, { code: 'UA', name: 'UNITED AIRLINES' }, { code: 'US', name: 'US AIRWAYS' }, { code: 'TP', name: 'TAP PORTUGAL' }, { code: 'CY', name: 'CYPRUS AIRWAYS' }, { code: 'EI', name: 'AER LINGUS' }, { code: 'AZ', name: 'ALITALIA' }, { code: 'AF', name: 'AIR FRANCE' }, { code: 'HM', name: 'AIR SEYCHELLES' }, { code: 'OK', name: 'CZECH AIRLINES' }, { code: 'SV', name: 'SAUDI ARABIAN AIRLINES' }, { code: '8Q', name: 'ONUR AIR TASIMACILIK' }, { code: 'RB', name: 'SYRIAN AIRLINES' }, { code: 'ET', name: 'ETHEOPEAN AIRLINES' }, { code: 'GF', name: 'GULF AIR' }, { code: 'KL', name: 'KLM-ROYAL DUTCH AIR' }, { code: 'ME', name: 'MEA-MIDDLE EAST AIRLINES' }, { code: 'MS', name: 'EGYPT AIR' }, { code: 'PR', name: 'PHILIPPINE AIRLINES' }, { code: 'QF', name: 'QANTAS AIRWAYS' }, { code: 'SA', name: 'SOUTH AFRICAN AIRWAYS' }, { code: 'IT', name: 'KING FISHER AIRLINES' }, { code: 'AI', name: 'AIR INDIA' }, { code: 'FI', name: 'ICE LAND AIRLINES' }, { code: 'UJ', name: 'ALMASRIA UNIVERSAL' }, { code: 'KW', name: 'WATANIA AIRWAYS' }, { code: 'SK', name: 'SAS SCANDINAVIAN' }, { code: 'BA', name: 'BRITISH AIRWAYS' }, { code: 'GA', name: 'GARUDA INDONESIA' }, { code: 'AM', name: 'AERO MEXICO' }, { code: 'FZ', name: 'FLY DUBAI' }, { code: 'AT', name: 'ROYAL AIR MAROC' }, { code: 'QR', name: 'QATAR AIRWAYS' }, { code: 'CX', name: 'CATHAY PACIFIC AIRWAYS' }, { code: 'HR', name: 'HAHN AIR' }, { code: 'EK', name: 'EMIRATES' }, { code: 'KE', name: 'KOREAN AIR' }, { code: 'TU', name: 'TUNIS AIR' }, { code: 'SD', name: 'SUDAN AIRWAYS' }, { code: 'PK', name: "PAKISTAN INT'L AIRLINES" }, { code: 'LH', name: 'LUFTHANSA' }, { code: 'UK', name: 'TATA SIA AIRLINES' }, { code: 'KU', name: 'KUWAIT AIRWAYS' }, { code: 'MH', name: 'MALAYSIAN AIRLINES' }, { code: 'TK', name: 'TURKISH AIRLINES' }, { code: 'MD', name: 'AIR MADAGASCAR' }, { code: 'MK', name: 'AIR MAURITIUS' }, { code: 'OS', name: 'AUSTRAIN AIRLINES' }, { code: 'GP', name: 'APG AIRLINES' }, { code: 'NP', name: 'NILE AIR' }, { code: 'SM', name: 'AIR CAIRO' }, { code: 'W2', name: 'FLEX FLIGHT' }, { code: 'A3', name: 'AGEAN AIRLINES' }, { code: 'S7', name: 'SIBERIA AIRLINES' }, { code: 'VL', name: 'MED VIEW AIRLINES' }, { code: 'NE', name: 'NESMA AIRLINES' }, { code: 'J9', name: 'JAZEERA AIRWAYS' }, { code: 'RJ', name: 'ROYAL JORDANIAN' }, { code: '8U', name: 'AFRIQIYAH AIRWAYS' }, { code: 'SU', name: 'AEROFLOT RUSSIAN AIR' }, { code: 'PS', name: 'UKRAIN INTERNAT' }, { code: '9W', name: 'JET AIRWAYS' }, { code: 'XY', name: 'NASAIR COMPANY LTD' }, { code: 'UL', name: 'SRILANKAN AIRLINES' }, { code: 'EY', name: 'ETIHAD AIRWAYS' }, { code: 'KK', name: 'ATLAS JET' }, { code: 'SQ', name: 'SINGAPORE AIRLINES' }, { code: 'PC', name: 'PEGASUS HAVA TASIMAC' }, { code: 'TZ', name: 'SCOOT PRIVATE LTD' }, { code: 'H9', name: 'HIMALAYA AIRLINES PV' }, { code: 'IY', name: 'YEMEN AIRWAYS' }, { code: '4Q', name: 'SAFI AIRWAYS' }, { code: 'S2', name: 'SAHARA AIRLINES' }, { code: 'KQ', name: 'KENYA AIRWAYS' }, { code: 'LX', name: 'SWISS INTERNATIONAL' }, { code: 'AB', name: 'AIR BERLINE' }, { code: 'YO', name: 'HELI AIR MONACO' }, { code: 'J2', name: 'AZERBAIJAN HAVA VOLL' }, { code: 'CZ', name: 'CHINA SOUTHERN AIR' }, { code: 'VA', name: 'VERGIN AUSTRALIA' }, { code: 'OD', name: 'MALINDO AIR' }, { code: 'WY', name: 'OMAN AIR' }, { code: 'ZS', name: 'SAMA AIR' }, { code: 'VS', name: 'VIRGIN ATLANTIC' }, { code: 'UX', name: 'AIR EUROPA LINEAS AE' }, { code: 'BG', name: 'BIMAN-BANGLADESH' }, { code: 'CA', name: 'AIR CHINA' }, { code: 'D3', name: 'DALLOO AIRLINES' }, { code: 'FG', name: 'AREANA AFGHAN' }, { code: 'G9', name: 'AIR ARABIA' }, { code: 'B8', name: 'ERITREAN AIR' }, { code: '2B', name: 'BAHRAIN AIR' }, { code: 'BI', name: 'ROYAL BRUNEI AIRLINES' }, { code: '4H', name: 'UNITED AIRWAYS' }, { code: 'SZ', name: 'SOMON AIR' }, { code: 'FS', name: 'SYPHAX AIRLINES' }, { code: 'NR', name: 'PAMIR AIRWAYS' }, { code: 'RL', name: 'ROYAL FALCON' }, { code: 'RT', name: 'RAK AIRWAYS' }, { code: 'FO', name: 'FELIX AIR' }, { code: 'AH', name: 'AIR ALGERIE' }, { code: 'SH', name: 'SHAHEEN' }, { code: 'R5', name: 'JORDAN AVIATION' }, { code: '6S', name: 'SAUDI GULF AIRLINES' }, { code: 'MJ', name: 'Myway Airlines' }, { code: 'N4', name: 'LLC "Nord Wind"' }, { code: 'DV', name: 'JSC Aircompany' }, { code: 'TR', name: 'Scoot Tigerair Pte' }, { code: 'I5', name: 'AIR ASIA' }, { code: 'XO', name: 'EXCHANGE ORDERS' }, { code: 'RA', name: 'Nepal Airlines' }, { code: 'TG', name: 'THAI AIR LINES' }, { code: 'ER', name: 'Serene Air' }, { code: 'LO', name: 'LOT Polish' }, { code: 'KP', name: 'ASKY AIRLINE' }, { code: 'BS', name: 'US-Bangla Airlines' }, { code: 'DQ', name: 'Alexandria Airlines' }, { code: 'MF', name: 'Xiamen Airlines' }, { code: 'XB', name: 'International Air Transport Association' }, { code: 'ZU', name: 'Ethiopian Mozambique Airlines' }, { code: 'K3', name: 'SAC (K) LIMITED' }, { code: 'DT', name: 'TAAG Angola Airlines' }, { code: 'B4', name: 'Beond-Simdi Operations Private' }, { code: 'P4', name: 'Air Peace Ltd.' }, { code: '953', name: 'IATA-LOCAL' }, { code: '954', name: 'IATA-GDS' }, { code: '956', name: 'BSP-CHGS' }, { code: 'Q4', name: 'Euroairlines, S.L.' }, { code: 'HC', name: 'HC Air Senegal S.A.' }, { code: 'VF', name: 'VF AJet Hava Tasimaciligi Anonim' }, { code: 'MU', name: 'MU China Eastern Airlines' }, { code: 'BR', name: 'BR EVA Airways Corporation' }, { code: 'BJ', name: 'Nouvelair Tunisie' }, { code: '56', name: 'International Air Transport As' }, { code: 'RQ', name: 'Kam Air dba Kam Air' }, { code: 'J4', name: 'Badr Airlines dba Badr Airline' }, { code: 'IF', name: 'ISLAS AIRLINE' }, { code: 'KC', name: 'AIR ASTANA' }, { code: 'JL', name: 'JAPAN AIRLINES' }, { code: 'F3', name: 'FLYADEAL LLC' }, { code: 'HU', name: 'HAINAN AIRLINES CO.LTD' }, { code: 'RX', name: 'AVIATION SERVICES COMPANY Dba' }, { code: 'WB', name: 'Rwand Air limited' }, { code: '5J', name: 'Cebu Air, Inc dba Cebu Pacific Air' }
     ];
 
-    // MAP 3-DIGIT NUMERIC PREFIXES TO 2-CHARACTER ALPHA CODES
     const NUMERIC_PREFIX_MAP = {
       '001': 'AA', '006': 'DL', '014': 'AC', '016': 'UA', '047': 'TP', '055': 'AZ', '057': 'AF', '065': 'SV',
       '071': 'ET', '072': 'GF', '074': 'KL', '076': 'ME', '077': 'MS', '079': 'PR', '080': 'LO', '081': 'QF',
