@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Summary section processed successfully.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly extracted.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -345,7 +345,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // LINEAR STATE-MACHINE PARSER ENGINE (FULLY FIXED & ROBUST)
+    // LINEAR STATE-MACHINE SUMMARY PARSER ENGINE
     function parseAirlineSalesPDF(rawText, acc) {
       extractCommonMeta(rawText, rawText.replace(/\n/g, ' ').replace(/\s+/g, ' '), acc);
       acc.airlineSalesItems = getFreshAirlineSales();
@@ -356,7 +356,7 @@
       let totalsPos = rawText.indexOf("7120167 TOTALS");
       let summaryText = totalsPos !== -1 ? rawText.substring(totalsPos) : rawText;
 
-      // 2. Strip repeating header/footer page-break noise (re-connects split blocks like 055 AZ across pages)
+      // 2. Strip repeating header/footer page-break noise (re-connects split blocks like 055 AZ across page boundaries)
       summaryText = summaryText.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
       summaryText = summaryText.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
       summaryText = summaryText.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
@@ -377,7 +377,7 @@
           currentItem = acc.airlineSalesItems.find(a => a.code === twoCharCode);
         }
 
-        // Process line data for the active airline
+        // Process line data for active airline
         if (currentItem) {
           let decs = (line.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
@@ -397,7 +397,7 @@
               currentItem.cash = decs[decs.length - 1]; // Balance Payable on TOTAL line overrides CASH line
               extractedAny = true;
             }
-            // Reset currentItem at the end of block
+            // Reset currentItem at end of block
             currentItem = null;
           }
         }
