@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Summary section processed starting from '7120167 TOTALS'.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Summary blocks correctly parsed starting from '7120167 TOTALS'.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -345,7 +345,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // STRICT SUMMARY EXTRACTOR STARTING FROM "7120167 TOTALS"
+    // STRICT BLOCK PARSER FOR "7120167 TOTALS" SECTION
     function parseAirlineSalesPDF(rawText, acc) {
       const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
@@ -353,7 +353,7 @@
 
       let extractedAny = false;
 
-      // Locate the start of "7120167 TOTALS" summary section
+      // Locate start of "7120167 TOTALS" section
       let totalsPos = rawText.indexOf("7120167 TOTALS");
       if (totalsPos !== -1) {
         let summarySection = rawText.substring(totalsPos);
@@ -361,53 +361,43 @@
         // Clean fused decimal strings (e.g. -684.00001 -> -684.00)
         summarySection = summarySection.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
 
-        // Split text by 3-digit numeric prefixes or newlines
-        let lines = summarySection.split('\n');
-        let currentCode = null;
+        // Split summary section into discrete blocks by 3-digit prefix at line start
+        let blocks = summarySection.split(/\n(?=\d{3}\b)/);
 
-        for (let i = 0; i < lines.length; i++) {
-          let lineStr = lines[i].trim();
+        blocks.forEach(block => {
+          let lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          if (lines.length === 0) return;
 
-          if (!lineStr || lineStr.startsWith('COMBINED') || lineStr.startsWith('WEBSALES') || lineStr.startsWith('TOTAL Airlines:')) {
-            continue;
-          }
-
-          // Check if line starts with 3-digit numeric prefix (e.g., 001, 006, 065)
-          let prefixMatch = lineStr.match(/^(\d{3})\b/);
+          let firstLine = lines[0];
+          let prefixMatch = firstLine.match(/^(\d{3})\b/);
           if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
-            currentCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
-          } else {
-            // Fallback: check 2-char code
-            let found = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
-            if (found) currentCode = found.code;
-          }
+            let twoCharCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
+            let item = acc.airlineSalesItems.find(a => a.code === twoCharCode);
 
-          if (currentCode) {
-            let item = acc.airlineSalesItems.find(a => a.code === currentCode);
             if (item) {
-              let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
+              lines.forEach(bl => {
+                let decs = (bl.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
-              // 1. CARD Line -> CC ISSUES (index 0), REFUNDS (index 1)
-              if (lineStr.includes('CARD') && decs.length >= 1) {
-                extractedAny = true;
-                item.cc_issues = decs[0] || 0;
-                item.refunds = decs[1] || 0;
-              }
-              // 2. TOTAL Line -> BALANCE PAYABLE for CASH (far-right decimal)
-              else if (lineStr.startsWith('TOTAL') && decs.length >= 1) {
-                extractedAny = true;
-                item.cash = decs[decs.length - 1] || 0;
-              }
-              // 3. CASH Line (if single cash row without TOTAL row)
-              else if (lineStr.includes('CASH') && decs.length >= 1 && !lineStr.startsWith('TOTAL')) {
-                if (decs.length >= 3) { // Has balance payable
+                // 1. CARD Line -> CC ISSUES (1st decimal), REFUNDS (2nd decimal)
+                if (bl.includes('CARD') && decs.length >= 1) {
+                  extractedAny = true;
+                  item.cc_issues = decs[0] || 0;
+                  item.refunds = decs[1] || 0;
+                }
+                // 2. TOTAL Line -> BALANCE PAYABLE for CASH (far-right decimal)
+                else if (bl.startsWith('TOTAL') && decs.length >= 1) {
+                  extractedAny = true;
+                  item.cash = decs[decs.length - 1] || 0;
+                }
+                // 3. CASH Line (for single cash row without TOTAL row)
+                else if (bl.includes('CASH') && !bl.startsWith('TOTAL') && decs.length >= 3) {
                   item.cash = decs[decs.length - 1] || 0;
                   extractedAny = true;
                 }
-              }
+              });
             }
           }
-        }
+        });
       }
 
       if (extractedAny) {
