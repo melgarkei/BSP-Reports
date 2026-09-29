@@ -39,7 +39,7 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-slate-50 text-slate-800 relative">
 
-  <!-- Header -->
+  <!-- Header Navigation -->
   <header class="bg-almosafer-900 border-b border-almosafer-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data matched and loaded for current report.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -345,7 +345,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // ACCURATE 1-PASS BLOCK PARSER FOR AIRLINE SALES
+    // ACCURATE MULTI-LINE / BLOCK PARSER FOR AIRLINE SALES
     function parseAirlineSalesPDF(rawText, acc) {
       const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
@@ -353,11 +353,10 @@
 
       let extractedAny = false;
 
-      // Primary Engine: Parse 7120167 TOTALS Grand Summary Section (Pages 40-45)
+      // Primary Strategy: Parse 7120167 TOTALS Grand Summary Section (Pages 40-45)
       let pos = rawText.indexOf("7120167 TOTALS");
       if (pos !== -1) {
         let totSec = rawText.substring(pos);
-        // Split strictly into airline blocks by 3-digit numeric prefix at line start
         let blocks = totSec.split(/\n(?=\d{3}\b)/);
 
         blocks.forEach(b => {
@@ -397,34 +396,43 @@
         });
       }
 
-      // Fallback Engine: If Grand Summary Section is missing, scan page-by-page
+      // Fallback Strategy: Page-by-page row aggregation across sub-offices
       if (!extractedAny) {
         const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
         const lines = cleanRawText.split('\n');
 
+        let currentAirlineCode = null;
+
         lines.forEach(line => {
           let lineStr = line.trim();
-          if (lineStr.startsWith('AGENT') || lineStr.startsWith('COMBINED') || lineStr.startsWith('TOTAL')) return;
+          if (lineStr.startsWith('AGENT') || lineStr.startsWith('COMBINED')) return;
 
-          let matchedAirline = AIRLINE_TEMPLATE_DATA.find(airline => {
-            let code = airline.code;
-            let codeRegex = new RegExp(`\\b${code}\\b`, 'i');
-            return codeRegex.test(lineStr) && (lineStr.includes('CASH') || lineStr.includes('CARD'));
-          });
+          // Check if line introduces a new airline block
+          let prefixMatch = lineStr.match(/^(\d{3})\b/);
+          if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
+            currentAirlineCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
+          } else {
+            // Check 2-character code in line
+            let found = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
+            if (found) currentAirlineCode = found.code;
+          }
 
-          if (matchedAirline) {
-            let rawDecimals = lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || [];
-            let decimals = rawDecimals.map(d => parseFloat(d.replace(/,/g, '')));
+          if (currentAirlineCode) {
+            let item = acc.airlineSalesItems.find(a => a.code === currentAirlineCode);
+            if (item) {
+              let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
-            if (decimals.length >= 1) {
-              let item = acc.airlineSalesItems.find(a => a.code === matchedAirline.code);
-              if (item) {
+              if (lineStr.includes('CARD') && decs.length >= 1) {
                 extractedAny = true;
-                if (lineStr.includes('CARD')) {
-                  item.cc_issues += decimals[0] || 0;
-                  item.refunds += decimals[1] || 0;
-                } else if (lineStr.includes('CASH')) {
-                  item.cash += decimals[decimals.length - 1] || 0;
+                item.cc_issues += decs[0] || 0;
+                item.refunds += decs[1] || 0;
+              } else if (lineStr.includes('CASH') && decs.length >= 1) {
+                extractedAny = true;
+                item.cash += decs[decs.length - 1] || 0;
+              } else if (lineStr.startsWith('TOTAL') && decs.length >= 1) {
+                // If CASH line was empty on Balance Payable, take final Balance Payable from TOTAL row
+                if (item.cash === 0 && !lineStr.includes('AGENT')) {
+                  item.cash = decs[decs.length - 1] || 0;
                 }
               }
             }
