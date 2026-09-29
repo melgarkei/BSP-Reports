@@ -128,7 +128,7 @@
           <div class="p-3 bg-almosafer-50 rounded-full text-almosafer-600"><i class="ph-duotone ph-upload-simple text-3xl"></i></div>
           <div>
             <p class="text-sm font-semibold text-slate-800">Click or Drag & Drop IATA BSP PDF here</p>
-            <p class="text-xs text-slate-500 mt-1">Auto-detects BSP Airline Sales and Payment Details PDF files.</p>
+            <p class="text-xs text-slate-500 mt-1">Supports file selection and drag-and-drop auto-detection.</p>
           </div>
           <div id="fileProcessingBadge" class="hidden items-center space-x-2 text-xs bg-almosafer-50 text-almosafer-700 px-3 py-1 rounded-full border border-almosafer-200">
             <i class="ph-bold ph-spinner animate-spin"></i><span id="processingText">Processing PDF...</span>
@@ -146,7 +146,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly extracted.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -372,7 +372,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // LINEAR STATE-MACHINE PARSER ENGINE (PURE JAVASCRIPT, 100% RELIABLE)
+    // LINEAR STATE-MACHINE PARSER ENGINE (FULLY SAFE JAVASCRIPT)
     function parseAirlineSalesPDF(rawText, acc) {
       extractCommonMeta(rawText, rawText.replace(/\n/g, ' ').replace(/\s+/g, ' '), acc);
       acc.airlineSalesItems = getFreshAirlineSales();
@@ -383,15 +383,16 @@
       let totalsPos = rawText.indexOf("7120167 TOTALS");
       let summaryText = totalsPos !== -1 ? rawText.substring(totalsPos) : rawText;
 
-      // 2. Strip repeating header/footer page-break noise (re-connects split blocks like 055 AZ across page boundaries)
-      summaryText = summaryText.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
-      summaryText = summaryText.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
-      summaryText = summaryText.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
-      
-      // 3. Clean fused decimal strings (e.g. -684.00001 -> -684.00)
-      summaryText = summaryText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
+      // 2. Strip repeating header/footer page-break noise (safely in JavaScript)
+      let cleanText = summaryText;
+      if (typeof summaryText === 'string') {
+        cleanText = summaryText.replace(/Page\s*:\s*\d+.*?\n/gi, '\n');
+        cleanText = cleanText.replace(/\d{2}-[A-Z]{3}-\d{4}.*?\n/gi, '\n');
+        cleanText = cleanText.replace(/FCGRBILLSUMNG.*?\n/gi, '\n');
+        cleanText = cleanText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
+      }
 
-      let lines = summaryText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let lines = cleanText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       let currentItem = null;
 
       for (let i = 0; i < lines.length; i++) {
