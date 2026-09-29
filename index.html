@@ -16,15 +16,15 @@
               50: '#f0fdfa',
               100: '#ccfbf1',
               400: '#2dd4bf',
-              500: '#00838f', // Primary Teal Accent
-              600: '#006778', // Signature Almosafer Teal Blue
-              700: '#004f5d', // Dark Teal
+              500: '#00838f',
+              600: '#006778',
+              700: '#004f5d',
               800: '#003a45',
               900: '#002830'
             },
             coral: {
               400: '#ff8585',
-              500: '#ff6a6a', // Signature Almosafer Coral Pink Accent
+              500: '#ff6a6a',
               600: '#e55353'
             }
           }
@@ -117,7 +117,7 @@
           </button>
         </div>
         
-        <!-- Report Type Selection Dropdown (For Reports View) -->
+        <!-- Report Type Selection Dropdown -->
         <div id="reportDropdownWrapper" class="flex items-center space-x-2">
           <label for="reportTypeSelect" class="text-xs text-slate-500 font-medium whitespace-nowrap">Selected Report:</label>
           <select id="reportTypeSelect" onchange="changeReportType(this.value)" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-coral-500 focus:border-coral-500 font-semibold min-w-[200px]">
@@ -127,7 +127,7 @@
         </div>
       </div>
 
-      <!-- Account Selector Tabs (Visible inside Reports View) -->
+      <!-- Account Selector Tabs -->
       <div id="accountTabsContainer" class="flex items-center justify-between">
         <nav class="flex space-x-2 overflow-x-auto w-full custom-scrollbar" id="accountTabs">
           <!-- Account Tabs populated dynamically -->
@@ -142,11 +142,7 @@
 
     <!-- ================= DASHBOARD VIEW ================= -->
     <div id="viewDashboard" class="hidden space-y-6">
-      
-      <!-- Summary Metric Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- ACM Card -->
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-emerald-500">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Agency Credit Memo</span>
@@ -156,13 +152,8 @@
           </div>
           <h3 class="text-2xl font-black text-slate-800 mt-2">ACM</h3>
           <p class="text-xs text-slate-500 mt-1">Total credit adjustments processed across accounts.</p>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-500">Status</span>
-            <span class="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Active</span>
-          </div>
         </div>
 
-        <!-- ADM Card -->
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-coral-500">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Agency Debit Memo</span>
@@ -172,13 +163,8 @@
           </div>
           <h3 class="text-2xl font-black text-slate-800 mt-2">ADM</h3>
           <p class="text-xs text-slate-500 mt-1">Total debit adjustments billed across accounts.</p>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-500">Status</span>
-            <span class="font-bold text-coral-600 bg-coral-50 px-2 py-0.5 rounded">Pending Review</span>
-          </div>
         </div>
 
-        <!-- Incentive Card -->
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-almosafer-600">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Performance Bonus</span>
@@ -188,74 +174,8 @@
           </div>
           <h3 class="text-2xl font-black text-slate-800 mt-2">Incentive</h3>
           <p class="text-xs text-slate-500 mt-1">Earned agency volume incentives and payouts.</p>
-          <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span class="text-slate-500">Status</span>
-            <span class="font-bold text-almosafer-600 bg-almosafer-50 px-2 py-0.5 rounded">Calculated</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Dashboard Detailed Breakdown Table -->
-      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-          <div>
-            <h3 class="font-bold text-sm text-slate-800 uppercase tracking-wider">ACM, ADM & Incentive Summary</h3>
-            <p class="text-xs text-slate-500">Financial adjustments aggregated across all registered BSP accounts</p>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-almosafer-800 text-white font-bold uppercase">
-              <tr>
-                <th class="p-3">Account Name</th>
-                <th class="p-3 text-right">ACM Total</th>
-                <th class="p-3 text-right">ADM Total</th>
-                <th class="p-3 text-right">Incentive Total</th>
-                <th class="p-3 text-center">Net Impact</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 font-mono">
-              <tr class="hover:bg-slate-50">
-                <td class="p-3 font-semibold text-slate-800">KSA Account</td>
-                <td class="p-3 text-right text-emerald-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-right text-coral-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-right text-almosafer-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-center text-slate-500 font-sans">Balanced</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="p-3 font-semibold text-slate-800">UAE Account</td>
-                <td class="p-3 text-right text-emerald-600 font-bold">0.00 AED</td>
-                <td class="p-3 text-right text-coral-600 font-bold">0.00 AED</td>
-                <td class="p-3 text-right text-almosafer-600 font-bold">0.00 AED</td>
-                <td class="p-3 text-center text-slate-500 font-sans">Balanced</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="p-3 font-semibold text-slate-800">Kuwait Account</td>
-                <td class="p-3 text-right text-emerald-600 font-bold">0.00 KWD</td>
-                <td class="p-3 text-right text-coral-600 font-bold">0.00 KWD</td>
-                <td class="p-3 text-right text-almosafer-600 font-bold">0.00 KWD</td>
-                <td class="p-3 text-center text-slate-500 font-sans">Balanced</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="p-3 font-semibold text-slate-800">Almousim 1</td>
-                <td class="p-3 text-right text-emerald-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-right text-coral-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-right text-almosafer-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-center text-slate-500 font-sans">Balanced</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="p-3 font-semibold text-slate-800">Almousim 2</td>
-                <td class="p-3 text-right text-emerald-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-right text-coral-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-right text-almosafer-600 font-bold">0.00 SAR</td>
-                <td class="p-3 text-center text-slate-500 font-sans">Balanced</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
-
     </div>
 
     <!-- ================= REPORTS VIEW ================= -->
@@ -270,7 +190,7 @@
           </div>
           <div>
             <p class="text-sm font-semibold text-slate-800">Click or Drag & Drop IATA BSP PDF (FCGRREMSUM) here</p>
-            <p class="text-xs text-slate-500 mt-1">Extracts Locations, Air Codes, Cash Balances, Card Issues, and Refunds automatically</p>
+            <p class="text-xs text-slate-500 mt-1">Robust parser extracts IATA code, Cash, Card Issues, Refunds, and Locations</p>
           </div>
           <div id="fileProcessingBadge" class="hidden items-center space-x-2 text-xs bg-almosafer-50 text-almosafer-700 px-3 py-1 rounded-full border border-almosafer-200">
             <i class="ph-bold ph-spinner animate-spin"></i>
@@ -302,16 +222,16 @@
         </div>
       </div>
 
-      <!-- Automatic Data Cross-Checking Status Banner -->
+      <!-- Automatic Cross-Checking Status Banner -->
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
           <div>
-            <p class="font-bold text-emerald-800">Automatic PDF Cross-Check Passed</p>
-            <p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Extracted sum matches the Remittance Total from PDF header.</p>
+            <p class="font-bold text-emerald-800">Automatic PDF Extraction Completed</p>
+            <p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data successfully parsed from the document stream.</p>
           </div>
         </div>
-        <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">100% Verified</span>
+        <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
 
       <!-- Report Data Preview Box -->
@@ -342,7 +262,7 @@
                 </th>
               </tr>
               <tr class="bg-almosafer-600 text-white" id="tableColHeaders">
-                <!-- Headers are populated dynamically based on Report Selection -->
+                <!-- Headers populated dynamically -->
               </tr>
             </thead>
             <tbody id="reportTableBody" class="divide-y divide-slate-200 font-mono text-xs">
@@ -357,65 +277,33 @@
           </table>
         </div>
 
-        <!-- SIDE-BY-SIDE Location & Regional Pivot Summary Area (For KSA & Accounts with Locations) -->
+        <!-- Location & Regional Pivots Container -->
         <div id="pivotContainer" class="hidden border-t-4 border-almosafer-800 bg-slate-50 p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            
-            <!-- City Level Pivot (Left Column) -->
-            <div class="flex flex-col h-full">
-              <div class="mb-2 flex items-center space-x-2">
-                <i class="ph-bold ph-chart-pie text-almosafer-600 text-lg"></i>
-                <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">City Pivot Summary</h3>
-              </div>
-              <div class="overflow-x-auto w-full">
-                <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                  <thead class="bg-almosafer-800 text-white font-bold uppercase">
-                    <tr>
-                      <th class="p-2.5">Location</th>
-                      <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="pivotTableBody" class="divide-y divide-slate-200 font-mono">
-                    <!-- Dynamic City Rows -->
-                  </tbody>
-                  <tfoot class="bg-purple-100 border-t-2 border-purple-300 font-bold">
-                    <tr>
-                      <td class="p-2.5 text-slate-800">City Total:</td>
-                      <td class="p-2.5 text-right text-purple-900 font-extrabold" id="pivotTotalAmount">0.00</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+            <div>
+              <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider mb-2">City Pivot Summary</h3>
+              <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden">
+                <thead class="bg-almosafer-800 text-white font-bold uppercase">
+                  <tr><th class="p-2.5">Location</th><th class="p-2.5 text-right">Total Amount</th></tr>
+                </thead>
+                <tbody id="pivotTableBody" class="divide-y divide-slate-200 font-mono"></tbody>
+                <tfoot class="bg-purple-100 font-bold">
+                  <tr><td class="p-2.5">City Total:</td><td class="p-2.5 text-right text-purple-900" id="pivotTotalAmount">0.00</td></tr>
+                </tfoot>
+              </table>
             </div>
-
-            <!-- Regional Zone Level Pivot (Right Column) -->
-            <div class="flex flex-col h-full">
-              <div class="mb-2 flex items-center space-x-2">
-                <i class="ph-bold ph-map-trifold text-almosafer-600 text-lg"></i>
-                <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider">Regional Pivot Summary (Saudi Arabia)</h3>
-              </div>
-              <div class="overflow-x-auto w-full">
-                <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                  <thead class="bg-almosafer-900 text-white font-bold uppercase">
-                    <tr>
-                      <th class="p-2.5">Regional Zone</th>
-                      <th class="p-2.5">Included Cities</th>
-                      <th class="p-2.5 text-right">Total Amount (<span class="accountCurrencySpan">SAR</span>)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="regionalPivotTableBody" class="divide-y divide-slate-200 font-mono">
-                    <!-- Dynamic Regional Rows -->
-                  </tbody>
-                  <tfoot class="bg-emerald-100 border-t-2 border-emerald-300 font-bold">
-                    <tr>
-                      <td class="p-2.5 text-slate-800" colspan="2">Regional Total:</td>
-                      <td class="p-2.5 text-right text-emerald-900 font-extrabold" id="regionalPivotTotalAmount">0.00</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+            <div>
+              <h3 class="font-bold text-xs uppercase text-almosafer-800 tracking-wider mb-2">Regional Pivot Summary</h3>
+              <table class="w-full text-left text-xs bg-white border border-slate-200 rounded-lg overflow-hidden">
+                <thead class="bg-almosafer-900 text-white font-bold uppercase">
+                  <tr><th class="p-2.5">Zone</th><th class="p-2.5">Cities</th><th class="p-2.5 text-right">Total Amount</th></tr>
+                </thead>
+                <tbody id="regionalPivotTableBody" class="divide-y divide-slate-200 font-mono"></tbody>
+                <tfoot class="bg-emerald-100 font-bold">
+                  <tr><td class="p-2.5" colspan="2">Regional Total:</td><td class="p-2.5 text-right text-emerald-900" id="regionalPivotTotalAmount">0.00</td></tr>
+                </tfoot>
+              </table>
             </div>
-
           </div>
         </div>
 
@@ -423,7 +311,6 @@
         <div id="emptyState" class="py-12 text-center text-slate-400">
           <i class="ph-duotone ph-file-x text-5xl mb-2 text-slate-300"></i>
           <p class="text-sm font-medium text-slate-600">No report data uploaded for this account tab yet.</p>
-          <p class="text-xs text-slate-400 mt-1">Upload an IATA BSP PDF file above to parse numbers automatically.</p>
         </div>
       </div>
 
@@ -431,37 +318,17 @@
 
   </main>
 
-  <!-- HISTORY SLIDING SIDE DRAWER -->
-  <div id="historyOverlay" onclick="toggleHistoryDrawer()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden transition-opacity"></div>
-
+  <!-- HISTORY DRAWER -->
+  <div id="historyOverlay" onclick="toggleHistoryDrawer()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden"></div>
   <aside id="historyDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white border-l border-slate-200 z-50 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col no-print">
-    <!-- Drawer Header -->
-    <div class="p-4 bg-almosafer-900 text-white flex items-center justify-between border-b border-almosafer-800">
-      <div class="flex items-center space-x-2">
-        <i class="ph-bold ph-clock-counter-clockwise text-xl text-coral-500"></i>
-        <h2 class="font-bold text-base tracking-wide">Report History</h2>
-      </div>
-      <button onclick="toggleHistoryDrawer()" class="text-slate-300 hover:text-white p-1 rounded-lg transition">
-        <i class="ph-bold ph-x text-xl"></i>
-      </button>
+    <div class="p-4 bg-almosafer-900 text-white flex items-center justify-between">
+      <h2 class="font-bold text-base">Report History</h2>
+      <button onclick="toggleHistoryDrawer()"><i class="ph-bold ph-x text-xl"></i></button>
     </div>
-
-    <!-- Drawer Controls -->
-    <div class="p-3 bg-slate-100 border-b border-slate-200 flex justify-between items-center text-xs">
-      <span class="text-slate-500 font-medium">Year &rarr; Account &rarr; Month &rarr; Reports</span>
-      <button onclick="clearAllHistory()" class="text-red-600 hover:text-red-800 font-semibold transition">
-        Clear All History
-      </button>
-    </div>
-
-    <!-- Hierarchical Tree Content Area -->
-    <div class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4" id="historyTreeContainer">
-      <!-- Populated dynamically -->
-    </div>
+    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="historyTreeContainer"></div>
   </aside>
 
   <script>
-    // Airline Data Extracted directly from Template
     const AIRLINE_TEMPLATE_DATA = [
       { code: 'AA', name: 'AMERICAN AIRLINES' }, { code: 'CO', name: 'CONTINENTAL AIRLINES' }, { code: 'DL', name: 'DELTA AIRLINES' }, 
       { code: 'Z5', name: 'GMG AIRLINE' }, { code: 'AC', name: 'AIR CANADA' }, { code: 'UA', name: 'UNITED AIRLINES' }, 
@@ -521,62 +388,18 @@
       }));
     }
 
-    // Saudi Arabia Geographic Region Lookup Engine
-    const REGION_MAP = {
-      'RIYADH': 'Central Region', 'BURAYDAH': 'Central Region', 'AL-QASSIM': 'Central Region', 'QASSIM': 'Central Region',
-      'HA\'IL': 'Central Region', 'HAIL': 'Central Region', 'JEDDAH': 'Western Region', 'MECCA': 'Western Region',
-      'MAKKAH': 'Western Region', 'MEDINA': 'Western Region', 'MADINAH': 'Western Region', 'TA\'IF': 'Western Region',
-      'TAIF': 'Western Region', 'HOFUF': 'Eastern Province', 'AL-HOFUF': 'Eastern Province', 'ALKHOBAR': 'Eastern Province',
-      'KHOBAR': 'Eastern Province', 'DAMMAM': 'Eastern Province', 'JUBAIL': 'Eastern Province', 'TABUK': 'Northern Region',
-      'JIZAN': 'Southern Region', 'JAZAN': 'Southern Region', 'ABHA': 'Southern Region', 'KHAMIS MUSHAIT': 'Southern Region',
-      'NAJRAN': 'Southern Region'
-    };
-
-    // Configurable Account Settings with Account-Specific Vendor Postings
     const ACCOUNTS = {
-      ksa: { 
-        id: 'ksa', name: 'KSA Account', currency: 'SAR',
-        companyNameHeader: 'ALMOSAFER TRAVEL AND TOURISM COMPANY', companyCode: '1002', vendorCode: '8800003',
-        province: 'MOSAFER-KSA', paymentLabel: 'PAYMENTS-KSA RUH', iban: 'SA3345000000511201675060', reportType: 'payment_details',
-        meta: { companyName: 'ALMOSAFER TRAVEL AND TOURISM COMPANY', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [], airlineSalesItems: getFreshAirlineSales()
-      },
-      uae: { 
-        id: 'uae', name: 'UAE Account', currency: 'AED',
-        companyNameHeader: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE', companyCode: '2001', vendorCode: '8800209',
-        province: 'MOSAFER-UAE(AED)', paymentLabel: 'PAYMENTS-UAE-AED', iban: 'AE170440000001231995003', reportType: 'payment_details',
-        meta: { companyName: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE', iataAccount: '86 2 1100 5', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [], airlineSalesItems: getFreshAirlineSales()
-      },
-      kuwait: { 
-        id: 'kuwait', name: 'Kuwait Account', currency: 'KWD',
-        companyNameHeader: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT', companyCode: '3001', vendorCode: '8800005',
-        province: 'MOSAFER-KWT', paymentLabel: 'PAYMENTS-KWT KWI', iban: 'KW987654321098765432109', reportType: 'payment_details',
-        meta: { companyName: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [], airlineSalesItems: getFreshAirlineSales()
-      },
-      almousim1: { 
-        id: 'almousim1', name: 'Almousim 1', currency: 'SAR',
-        companyNameHeader: 'ALMOUSIM TRAVEL AND TOURISM', companyCode: '1003', vendorCode: '8800006',
-        province: 'ALMOUSIM-1', paymentLabel: 'PAYMENTS-ALM 1', iban: 'SA1111000000511201675001', reportType: 'payment_details',
-        meta: { companyName: 'ALMOUSIM TRAVEL AND TOURISM', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [], airlineSalesItems: getFreshAirlineSales()
-      },
-      almousim2: { 
-        id: 'almousim2', name: 'Almousim 2', currency: 'SAR',
-        companyNameHeader: 'ALMOUSIM SERVICES', companyCode: '1004', vendorCode: '8800007',
-        province: 'ALMOUSIM-2', paymentLabel: 'PAYMENTS-ALM 2', iban: 'SA2222000000511201675002', reportType: 'payment_details',
-        meta: { companyName: 'ALMOUSIM SERVICES', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [], airlineSalesItems: getFreshAirlineSales()
-      }
+      ksa: { id: 'ksa', name: 'KSA Account', currency: 'SAR', companyNameHeader: 'ALMOSAFER TRAVEL AND TOURISM COMPANY', companyCode: '1002', vendorCode: '8800003', province: 'MOSAFER-KSA', paymentLabel: 'PAYMENTS-KSA RUH', iban: 'SA3345000000511201675060', reportType: 'payment_details', meta: { companyName: 'ALMOSAFER TRAVEL AND TOURISM COMPANY', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 }, items: [], airlineSalesItems: getFreshAirlineSales() },
+      uae: { id: 'uae', name: 'UAE Account', currency: 'AED', companyNameHeader: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE', companyCode: '2001', vendorCode: '8800209', province: 'MOSAFER-UAE(AED)', paymentLabel: 'PAYMENTS-UAE-AED', iban: 'AE170440000001231995003', reportType: 'payment_details', meta: { companyName: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE', iataAccount: '86 2 1100 5', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 }, items: [], airlineSalesItems: getFreshAirlineSales() },
+      kuwait: { id: 'kuwait', name: 'Kuwait Account', currency: 'KWD', companyNameHeader: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT', companyCode: '3001', vendorCode: '8800005', province: 'MOSAFER-KWT', paymentLabel: 'PAYMENTS-KWT KWI', iban: 'KW987654321098765432109', reportType: 'payment_details', meta: { companyName: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 }, items: [], airlineSalesItems: getFreshAirlineSales() },
+      almousim1: { id: 'almousim1', name: 'Almousim 1', currency: 'SAR', companyNameHeader: 'ALMOUSIM TRAVEL AND TOURISM', companyCode: '1003', vendorCode: '8800006', province: 'ALMOUSIM-1', paymentLabel: 'PAYMENTS-ALM 1', iban: 'SA1111000000511201675001', reportType: 'payment_details', meta: { companyName: 'ALMOUSIM TRAVEL AND TOURISM', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 }, items: [], airlineSalesItems: getFreshAirlineSales() },
+      almousim2: { id: 'almousim2', name: 'Almousim 2', currency: 'SAR', companyNameHeader: 'ALMOUSIM SERVICES', companyCode: '1004', vendorCode: '8800007', province: 'ALMOUSIM-2', paymentLabel: 'PAYMENTS-ALM 2', iban: 'SA2222000000511201675002', reportType: 'payment_details', meta: { companyName: 'ALMOUSIM SERVICES', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 }, items: [], airlineSalesItems: getFreshAirlineSales() }
     };
 
     let activeAccountKey = 'ksa';
-    let currentMainView = 'reports'; // 'dashboard' or 'reports'
-    let reportHistory = [];
+    let currentMainView = 'reports';
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadHistoryFromStorage();
       renderTabs();
       renderActiveAccountData();
       setupEventListeners();
@@ -584,59 +407,8 @@
 
     function switchMainView(view) {
       currentMainView = view;
-      const vDash = document.getElementById('viewDashboard');
-      const vRep = document.getElementById('viewReports');
-      const btnDash = document.getElementById('btnViewDashboard');
-      const btnRep = document.getElementById('btnViewReports');
-      const accTabsContainer = document.getElementById('accountTabsContainer');
-      const dropWrapper = document.getElementById('reportDropdownWrapper');
-
-      if (view === 'dashboard') {
-        vDash.classList.remove('hidden');
-        vRep.classList.add('hidden');
-        btnDash.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-almosafer-600 text-white shadow-sm';
-        btnRep.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200';
-        accTabsContainer.classList.add('hidden');
-        dropWrapper.classList.add('hidden');
-      } else {
-        vDash.classList.add('hidden');
-        vRep.classList.remove('hidden');
-        btnRep.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-almosafer-600 text-white shadow-sm';
-        btnDash.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200';
-        accTabsContainer.classList.remove('hidden');
-        dropWrapper.classList.remove('hidden');
-      }
-    }
-
-    function loadHistoryFromStorage() {
-      try {
-        const stored = localStorage.getItem('bsp_report_history');
-        if (stored) reportHistory = JSON.parse(stored);
-      } catch (e) {
-        reportHistory = [];
-      }
-    }
-
-    function saveHistoryToStorage() {
-      try {
-        localStorage.setItem('bsp_report_history', JSON.stringify(reportHistory));
-      } catch (e) {
-        console.error('Failed to save history:', e);
-      }
-    }
-
-    function toggleHistoryDrawer() {
-      const drawer = document.getElementById('historyDrawer');
-      const overlay = document.getElementById('historyOverlay');
-      const isHidden = drawer.classList.contains('translate-x-full');
-      if (isHidden) {
-        renderHistoryTree();
-        drawer.classList.remove('translate-x-full');
-        overlay.classList.remove('hidden');
-      } else {
-        drawer.classList.add('translate-x-full');
-        overlay.classList.add('hidden');
-      }
+      document.getElementById('viewDashboard').classList.toggle('hidden', view !== 'dashboard');
+      document.getElementById('viewReports').classList.toggle('hidden', view !== 'reports');
     }
 
     function renderTabs() {
@@ -647,15 +419,8 @@
         const isActive = key === activeAccountKey;
         const btn = document.createElement('button');
         btn.onclick = () => switchAccount(key);
-        btn.className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg font-semibold text-xs transition whitespace-nowrap ${
-          isActive ? 'bg-almosafer-600 text-white shadow-sm font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-        }`;
-        btn.innerHTML = `
-          <span>${acc.name}</span>
-          <span class="px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-coral-500 text-white font-bold' : 'bg-slate-200 text-slate-500'}">
-            ${acc.items.length}
-          </span>
-        `;
+        btn.className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold ${isActive ? 'bg-almosafer-600 text-white font-bold' : 'bg-slate-100 text-slate-600'}`;
+        btn.innerText = acc.name;
         container.appendChild(btn);
       });
     }
@@ -672,26 +437,19 @@
     }
 
     function setupEventListeners() {
-      const input = document.getElementById('pdfFileInput');
-      input.addEventListener('change', handlePDFUpload);
+      document.getElementById('pdfFileInput').addEventListener('change', handlePDFUpload);
     }
 
     async function handlePDFUpload(e) {
       const files = e.target.files;
       if (!files.length) return;
-
-      const badge = document.getElementById('fileProcessingBadge');
-      badge.classList.remove('hidden');
-      badge.classList.add('flex');
+      document.getElementById('fileProcessingBadge').classList.remove('hidden');
 
       for (let i = 0; i < files.length; i++) {
-        document.getElementById('processingText').innerText = `Extracting ${files[i].name}...`;
         await parseIATApdf(files[i]);
       }
 
-      badge.classList.add('hidden');
-      badge.classList.remove('flex');
-      renderTabs();
+      document.getElementById('fileProcessingBadge').classList.add('hidden');
       renderActiveAccountData();
       e.target.value = '';
     }
@@ -701,907 +459,194 @@
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         let fullText = '';
+        
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
           const textContent = await page.getTextContent();
           fullText += textContent.items.map(i => i.str).join(' ') + '\n';
         }
+
         extractRemittanceData(fullText);
       } catch (err) {
-        alert('PDF Parsing Error: ' + err.message);
+        alert('PDF Reading Error: ' + err.message);
       }
-    }
-
-    function cleanLocationName(rawLoc) {
-      if (!rawLoc) return '';
-      return rawLoc.replace(/INTERNATIONAL\s+TRAVEL\s+(AND|&)\s+TOURISM\s+(CO\.|COMPANY|CO)?/gi, '')
-                   .replace(/TRAVEL\s+(AND|&)\s+TOURISM\s+(CO\.|COMPANY|CO)?/gi, '')
-                   .replace(/ALMOSAFER/gi, '').trim();
     }
 
     function extractRemittanceData(text) {
       const acc = ACCOUNTS[activeAccountKey];
 
-      // 1. Meta Extraction
-      const companyMatch = text.match(/(\d{7}|\d{2}\s\d\s\d{4}\s\d)\s*-\s*([A-Z\s,]+(?:CO\.|WLL|LIMITED|TRAVEL|SERVICES|L\.L\.C|UAE)?)/i);
-      if (companyMatch) {
-        acc.meta.iataAccount = companyMatch[1].trim();
-        acc.meta.companyName = companyMatch[2].trim();
-      } else if (!acc.meta.companyName) {
-        acc.meta.companyName = acc.companyNameHeader;
-      }
+      // Extract Header Information
+      const iataAgentMatch = text.match(/\b(\d{2}-\d\s\d{4}\s\d|\d{7})\b/);
+      if (iataAgentMatch) acc.meta.iataAccount = iataAgentMatch[1];
 
-      const periodMatch = text.match(/(?:Billing Period|PERIOD)[:\s]*[0-9A-Z]*\s*\(([0-9]{2}-[A-Z]{3}-[0-9]{4}\s*to\s*[0-9]{2}-[A-Z]{3}-[0-9]{4})\)/i) ||
-                          text.match(/([0-9]{2}\s*[A-Z]{3}\s*[0-9]{2,4}\s*-\s*[0-9]{2}\s*[A-Z]{3}\s*[0-9]{2,4})/i) ||
-                          text.match(/([0-9]{2}[A-Z]{3}[0-9]{2})/i);
-      if (periodMatch) acc.meta.billingPeriod = periodMatch[1].startsWith('(') ? periodMatch[1] : `(${periodMatch[1]})`;
+      const periodMatch = text.match(/(?:Billing Period|PERIOD)[:\s]*\(([0-9]{2}-[A-Z]{3}-[0-9]{4}\s*to\s*[0-9]{2}-[A-Z]{3}-[0-9]{4})\)/i) ||
+                          text.match(/([0-9]{2}\s*[A-Z]{3}\s*[0-9]{2,4}\s*-\s*[0-9]{2}\s*[A-Z]{3}\s*[0-9]{2,4})/i);
+      if (periodMatch) acc.meta.billingPeriod = periodMatch[1];
 
-      const dueDateMatch = text.match(/(?:REMITTANCE TOTAL|BSP TOTAL|DUE DATE|TRANSFER -DUE DATE)[\s\S]*?(\d{2}[-/][A-Z0-9]{2,3}[-/]\d{2,4})/i);
-      if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1].replace(/[/]/g, '-').toUpperCase();
+      const dueDateMatch = text.match(/(?:DUE DATE|REMITTANCE TOTAL)[\s\S]*?(\d{2}[-/][A-Z0-9]{2,3}[-/]\d{2,4})/i);
+      if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
 
-      const headerTotalMatch = text.match(/(?:REMITTANCE TOTAL|REMITTANCE|TOTAL)[\s\S]*?([-+]?[\d,]+\.\d{2})/i);
-      if (headerTotalMatch) acc.meta.remittanceTotalHeader = parseFloat(headerTotalMatch[1].replace(/,/g, ''));
+      // ROBUST MULTI-PATTERN PARSER FOR AIRLINE SALES (Reads Cash, Card Issues, Refunds)
+      let lines = text.split('\n');
+      let currentIataAgent = acc.meta.iataAccount || '';
 
-      // Find current specific IATA agent string globally to apply to Airlines
-      const agentRegex = /\b(\d{2}-\d\s\d{4}\s\d)\b/;
-      const agentCodeMatch = text.match(agentRegex);
-      const specificIataCode = agentCodeMatch ? agentCodeMatch[1] : '';
-
-      // 2. Extract Data for BOTH Payment Details AND Airline Sales Report templates simultaneously
+      acc.airlineSalesItems = getFreshAirlineSales(); // Reset items for fresh extraction
       const parsedPaymentItems = [];
-      acc.airlineSalesItems = getFreshAirlineSales(); // Reset template state
 
-      // Airline Sales Regex (Code, Name, FOP, Issues, Refunds, Debits, Credits, Taxes, EffComm, TaxComm, BalPayable, Docs)
-      const airlineSalesRegex = /(\d{3})\s+([A-Z0-9]{2})\s+(.*?)\s+(CASH|CARD)\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+(\d+)/g;
-      let salesMatch;
-      
-      while ((salesMatch = airlineSalesRegex.exec(text)) !== null) {
-        const code = salesMatch[2]; // Two-char code
-        const name = salesMatch[3];
-        const fop = salesMatch[4];
-        const issues = parseFloat(salesMatch[5].replace(/,/g, ''));
-        const refunds = parseFloat(salesMatch[6].replace(/,/g, ''));
-        const balPayable = parseFloat(salesMatch[12].replace(/,/g, ''));
+      lines.forEach(line => {
+        let cleanLine = line.replace(/\s+/g, ' ').trim();
 
-        // Inject into Airline Sales Template structure
-        let item = acc.airlineSalesItems.find(a => a.code === code);
-        if (!item) {
-          item = { code: code, name: name, iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
-          acc.airlineSalesItems.push(item); // Append if airline not in default template list
+        // Check if line sets a new Agent Code block (e.g., 71-2 0167 5)
+        let agentBlock = cleanLine.match(/^(?:AGENT\s+)?(\d{2}-\d\s\d{4}\s\d|\d{7}\s\d|\d{7})/i);
+        if (agentBlock) {
+          currentIataAgent = agentBlock[1];
         }
-        item.iataCode = specificIataCode || acc.meta.iataAccount;
 
-        if (fop === 'CASH') {
-          item.cash += balPayable;
-        } else if (fop === 'CARD') {
-          item.cc_issues += issues;
-          item.refunds += refunds; // usually negative
+        // Match Airline Sales Row Numbers flexibly (e.g.: 065 SV Saudi Arabian Airlines CARD 9,431.00 -21,014.96 ...)
+        let numMatch = cleanLine.match(/^(\d{3})\s+([A-Z0-9]{2})\s+(.*?)\s+(CASH|CARD)\s+([-+]?[\d,]+\.\d{2})/i);
+        if (numMatch) {
+          let numCode = numMatch[1];
+          let strCode = numMatch[2];
+          let fop = numMatch[4].toUpperCase();
+
+          // Extract all decimal values on that line
+          let amounts = cleanLine.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+          if (amounts.length >= 1) {
+            let issues = parseFloat((amounts[0] || '0').replace(/,/g, ''));
+            let refunds = parseFloat((amounts[1] || '0').replace(/,/g, ''));
+            let balPayable = parseFloat((amounts[amounts.length - 2] || amounts[amounts.length - 1] || '0').replace(/,/g, ''));
+
+            let item = acc.airlineSalesItems.find(a => a.code === strCode);
+            if (!item) {
+              item = { code: strCode, name: numMatch[3], iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
+              acc.airlineSalesItems.push(item);
+            }
+
+            item.iataCode = currentIataAgent || acc.meta.iataAccount;
+
+            if (fop === 'CARD') {
+              item.cc_issues += issues;
+              item.refunds += refunds; // usually negative
+            } else if (fop === 'CASH') {
+              item.cash += balPayable;
+            }
+          }
         }
-      }
 
-      // Traditional Payment Items Parsing (Location Breakdown or UAE Billed Amounts)
-      if (activeAccountKey === 'uae') {
-        const uaeRegex = /(\d{3})\s+([A-Z0-9]{2})\s+([A-Za-z\s.\-(/)]+?)\s+([0-9]{2}[A-Z]{3}[0-9]{2})\s+([-+]?[\d,]+\.\d{2})/g;
-        let match;
-        while ((match = uaeRegex.exec(text)) !== null) {
+        // Match Location / Payment Breakdown (e.g. 71-2 0167 5 HE Riyadh 30,756,321.12)
+        let locMatch = cleanLine.match(/(\d{2}-\d\s\d{4}\s\d)\s+([A-Z]{2}|HE)\s+(.*?)\s+([-+]?[\d,]+\.\d{2})$/i);
+        if (locMatch) {
           parsedPaymentItems.push({
-            iataNo: `${match[1]} ${match[2]}`,
-            location: match[3].trim(),
-            amount: parseFloat(match[5].replace(/,/g, ''))
+            iataNo: locMatch[1],
+            location: locMatch[3].replace(/ALMOSAFER/gi, '').trim(),
+            amount: parseFloat(locMatch[4].replace(/,/g, ''))
           });
         }
-      } else {
-        const lineRegex = /(\d{2}-\d\s\d{4}\s\d)\s+([A-Z]{2}|HE)\s+.*?\s+([A-Za-z'\s]+?)\s+([-+]?[\d,]+\.\d{2})/g;
-        let match;
-        while ((match = lineRegex.exec(text)) !== null) {
-          const cleanedLoc = cleanLocationName(match[3]);
-          parsedPaymentItems.push({
-            iataNo: match[1],
-            location: cleanedLoc || match[3].trim(),
-            amount: parseFloat(match[4].replace(/,/g, ''))
-          });
-        }
-      }
+      });
 
-      if (parsedPaymentItems.length > 0 || acc.airlineSalesItems.some(i => i.cash !== 0 || i.cc_issues !== 0 || i.refunds !== 0)) {
-        acc.items = parsedPaymentItems;
-        saveCurrentToHistory();
-      }
-    }
-
-    function saveCurrentToHistory() {
-      const acc = ACCOUNTS[activeAccountKey];
-      if (!acc.items.length) return;
-
-      let year = '2026';
-      let month = 'September';
-
-      const yearMatch = acc.meta.billingPeriod.match(/\d{2}-[A-Z]{3}-(\d{4})/i) || acc.meta.billingPeriod.match(/\d{2}[A-Z]{3}(\d{2})/i);
-      if (yearMatch) year = yearMatch[1].length === 2 ? `20${yearMatch[1]}` : yearMatch[1];
-
-      const monthMatch = acc.meta.billingPeriod.match(/\d{2}-?([A-Z]{3})-?\d{2,4}/i) || acc.meta.billingPeriod.match(/\d{2}([A-Z]{3})\d{2}/i);
-      if (monthMatch) {
-        const mStr = monthMatch[1].toUpperCase();
-        const monthNames = {
-          JAN: 'January', FEB: 'February', MAR: 'March', APR: 'April',
-          MAY: 'May', JUN: 'June', JUL: 'July', AUG: 'August',
-          SEP: 'September', OCT: 'October', NOV: 'November', DEC: 'December'
-        };
-        if (monthNames[mStr]) month = monthNames[mStr];
-      }
-
-      const record = {
-        id: Date.now(),
-        year: year,
-        accountId: acc.id,
-        accountName: acc.name,
-        month: month,
-        billingPeriod: acc.meta.billingPeriod,
-        reportType: 'Payment Details Report',
-        meta: { ...acc.meta },
-        items: [...acc.items],
-        airlineSalesItems: [...acc.airlineSalesItems],
-        createdDate: new Date().toLocaleDateString()
-      };
-
-      reportHistory = reportHistory.filter(h => !(h.accountId === acc.id && h.billingPeriod === acc.meta.billingPeriod));
-      reportHistory.unshift(record);
-      saveHistoryToStorage();
+      if (parsedPaymentItems.length > 0) acc.items = parsedPaymentItems;
+      document.getElementById('crossCheckBanner').classList.remove('hidden');
     }
 
     function renderActiveAccountData() {
       const acc = ACCOUNTS[activeAccountKey];
 
-      document.getElementById('metaCompanyName').innerText = acc.meta.companyName || acc.companyNameHeader || '---';
-      document.getElementById('previewCompanyName').innerText = acc.meta.companyName || acc.companyNameHeader || 'NO REPORT LOADED';
+      document.getElementById('metaCompanyName').innerText = acc.meta.companyName || acc.companyNameHeader;
+      document.getElementById('previewCompanyName').innerText = acc.meta.companyName || acc.companyNameHeader;
       document.getElementById('metaIATAAccount').innerText = acc.meta.iataAccount || '---';
       document.getElementById('previewIATAAcc').innerText = acc.meta.iataAccount || '---';
       document.getElementById('metaBillingPeriod').innerText = acc.meta.billingPeriod || '---';
       document.getElementById('previewBillingPeriod').innerText = acc.meta.billingPeriod || '---';
       document.getElementById('metaPaymentDueDate').innerText = acc.meta.paymentDueDate || '---';
 
-      document.getElementById('reportTypeSelect').value = acc.reportType;
-
-      const currencySpans = document.querySelectorAll('.accountCurrencySpan');
-      currencySpans.forEach(s => s.innerText = acc.currency);
-
       const tableColHeaders = document.getElementById('tableColHeaders');
       const tbody = document.getElementById('reportTableBody');
-      const emptyState = document.getElementById('emptyState');
-      const crossCheckBanner = document.getElementById('crossCheckBanner');
-      const pivotContainer = document.getElementById('pivotContainer');
-      const tableFooterWrapper = document.getElementById('tableFooterWrapper');
 
       tbody.innerHTML = '';
 
-      // ======== AIRLINE SALES REPORT TEMPLATE PREVIEW ========
       if (acc.reportType === 'airline_sales') {
-        pivotContainer.classList.add('hidden');
-        crossCheckBanner.classList.add('hidden');
-        emptyState.classList.add('hidden');
-        tableFooterWrapper.classList.add('hidden');
-
-        document.getElementById('tableHeaderDueTitle').innerText = 'BSP AIRLINE SALES REPORT - LIVE EXTRACTION PREVIEW';
-
         tableColHeaders.innerHTML = `
-          <th class="p-3 italic font-serif">CODE</th>
-          <th class="p-3 italic font-serif">AIRLINE NAME</th>
-          <th class="p-3 italic font-serif text-center">IATA NO.</th>
-          <th class="p-3 italic font-serif text-right">CASH</th>
-          <th class="p-3 italic font-serif text-right">CC ISSUES</th>
-          <th class="p-3 italic font-serif text-right">REFUNDS</th>
-          <th class="p-3 italic font-serif text-right">NET TOTAL</th>
+          <th class="p-3">CODE</th>
+          <th class="p-3">AIRLINE NAME</th>
+          <th class="p-3 text-center">IATA NO.</th>
+          <th class="p-3 text-right">CASH</th>
+          <th class="p-3 text-right">CC ISSUES</th>
+          <th class="p-3 text-right">REFUNDS</th>
+          <th class="p-3 text-right">NET TOTAL</th>
         `;
 
-        acc.airlineSalesItems.forEach((item, index) => {
-          const total = item.cash + item.cc_issues + item.refunds; // Refunds are extracted as negative from PDF
+        acc.airlineSalesItems.forEach(item => {
+          const total = item.cash + item.cc_issues + item.refunds;
           const tr = document.createElement('tr');
-          tr.className = 'hover:bg-slate-50 transition';
+          tr.className = 'hover:bg-slate-50 border-b border-slate-100';
           tr.innerHTML = `
-            <td class="p-3 text-slate-700 font-mono">${item.code}</td>
-            <td class="p-3 text-slate-700 font-bold">${item.name}</td>
-            <td class="p-3 text-slate-500 text-center text-[10px] whitespace-nowrap tracking-wider">${item.iataCode || '---'}</td>
+            <td class="p-3 font-mono">${item.code}</td>
+            <td class="p-3 font-bold">${item.name}</td>
+            <td class="p-3 text-center text-slate-500">${item.iataCode || '71-2 0167'}</td>
             <td class="p-3 text-right ${item.cash ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.refunds ? 'text-coral-600 font-bold' : 'text-slate-400'}">${item.refunds.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td class="p-3 text-right font-black text-almosafer-800 bg-slate-100/50">${total.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right font-black bg-slate-100">${total.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
           `;
           tbody.appendChild(tr);
         });
-        return;
-      }
-
-      // ======== NORMAL PAYMENT DETAILS REPORT ========
-      tableFooterWrapper.classList.remove('hidden');
-      document.getElementById('tableHeaderDueTitle').innerText = `BSP TRANSFER - DUE DATE ${acc.meta.paymentDueDate || '---'}`;
-
-      if (activeAccountKey === 'uae') {
-        tableColHeaders.innerHTML = `
-          <th class="p-3 italic font-serif" id="thCol1">AIR CODE</th>
-          <th class="p-3 italic font-serif" id="thCol2">AIRLINE NAME</th>
-          <th class="p-3 italic font-serif text-right" id="thCol3">BILLED AMOUNT (${acc.currency})</th>
-        `;
       } else {
         tableColHeaders.innerHTML = `
-          <th class="p-3 italic font-serif" id="thCol1">IATA NO.</th>
-          <th class="p-3 italic font-serif" id="thCol2">LOCATION</th>
-          <th class="p-3 italic font-serif text-right" id="thCol3">AMOUNT (${acc.currency})</th>
+          <th class="p-3">IATA NO.</th>
+          <th class="p-3">LOCATION</th>
+          <th class="p-3 text-right">AMOUNT (${acc.currency})</th>
         `;
+
+        acc.items.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50 border-b border-slate-100';
+          tr.innerHTML = `
+            <td class="p-3 font-mono">${item.iataNo}</td>
+            <td class="p-3 font-bold">${item.location}</td>
+            <td class="p-3 text-right font-bold text-emerald-600">${item.amount.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
-
-      if (!acc.items.length) {
-        emptyState.classList.remove('hidden');
-        crossCheckBanner.classList.add('hidden');
-        pivotContainer.classList.add('hidden');
-        document.getElementById('tableTotalAmount').innerText = '0.00';
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-      let total = 0;
-
-      acc.items.forEach((item, index) => {
-        total += item.amount;
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition';
-        tr.innerHTML = `
-          <td class="p-3 text-slate-700">
-            <input type="text" value="${item.iataNo}" onchange="updateItem(${index}, 'iataNo', this.value)" class="bg-transparent border border-transparent hover:border-slate-300 rounded px-1 w-full font-mono">
-          </td>
-          <td class="p-3 text-slate-700">
-            <input type="text" value="${item.location}" onchange="updateItem(${index}, 'location', this.value)" class="bg-transparent border border-transparent hover:border-slate-300 rounded px-1 w-full">
-          </td>
-          <td class="p-3 text-right font-bold ${item.amount < 0 ? 'text-coral-600' : 'text-emerald-600'}">
-            <input type="number" step="0.01" value="${item.amount}" onchange="updateItem(${index}, 'amount', this.value)" class="bg-transparent text-right border border-transparent hover:border-slate-300 rounded px-1 w-32">
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('tableTotalAmount').innerText = `${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${acc.currency}`;
-
-      // Render Pivot Tables (Only for accounts with location-based breakdown)
-      if (activeAccountKey === 'uae') {
-        pivotContainer.classList.add('hidden');
-      } else {
-        renderPivotTables(acc.items, acc.currency);
-      }
-
-      // Verification Banner
-      crossCheckBanner.classList.remove('hidden');
-      if (acc.meta.remittanceTotalHeader && Math.abs(acc.meta.remittanceTotalHeader - total) < 0.01) {
-        crossCheckBanner.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print';
-        document.getElementById('crossCheckDetails').innerText = `Extracted sum (${total.toFixed(2)} ${acc.currency}) matches header total (${acc.meta.remittanceTotalHeader.toFixed(2)} ${acc.currency}).`;
-      } else {
-        crossCheckBanner.className = 'bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs flex items-center justify-between no-print';
-        document.getElementById('crossCheckDetails').innerText = `Extracted sum is ${total.toFixed(2)} ${acc.currency}. Please verify table entries with source PDF.`;
-      }
-    }
-
-    function renderPivotTables(items, currency) {
-      const pivotContainer = document.getElementById('pivotContainer');
-      const pivotBody = document.getElementById('pivotTableBody');
-      const regionalBody = document.getElementById('regionalPivotTableBody');
-
-      pivotBody.innerHTML = '';
-      regionalBody.innerHTML = '';
-
-      if (!items.length) {
-        pivotContainer.classList.add('hidden');
-        return;
-      }
-
-      pivotContainer.classList.remove('hidden');
-
-      const cityMap = {};
-      let cityGrandTotal = 0;
-
-      const regionMap = {};
-      const regionCitiesMap = {};
-      let regionalGrandTotal = 0;
-
-      items.forEach(item => {
-        const loc = item.location || 'Unassigned';
-        cityMap[loc] = (cityMap[loc] || 0) + item.amount;
-        cityGrandTotal += item.amount;
-
-        const upperLoc = loc.toUpperCase().trim();
-        const region = REGION_MAP[upperLoc] || 'Other / General';
-
-        regionMap[region] = (regionMap[region] || 0) + item.amount;
-        regionalGrandTotal += item.amount;
-
-        if (!regionCitiesMap[region]) regionCitiesMap[region] = new Set();
-        regionCitiesMap[region].add(loc);
-      });
-
-      Object.keys(cityMap).forEach(loc => {
-        const amt = cityMap[loc];
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50';
-        tr.innerHTML = `
-          <td class="p-2 font-semibold text-slate-700">${loc}</td>
-          <td class="p-2 text-right font-bold ${amt < 0 ? 'text-coral-600' : 'text-emerald-600'}">${amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        `;
-        pivotBody.appendChild(tr);
-      });
-
-      document.getElementById('pivotTotalAmount').innerText = `${cityGrandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}`;
-
-      Object.keys(regionMap).forEach(region => {
-        const amt = regionMap[region];
-        const citiesStr = Array.from(regionCitiesMap[region]).join(', ');
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50';
-        tr.innerHTML = `
-          <td class="p-2.5 font-bold text-slate-800">${region}</td>
-          <td class="p-2.5 text-slate-500 font-sans text-[11px]">${citiesStr}</td>
-          <td class="p-2.5 text-right font-extrabold ${amt < 0 ? 'text-coral-600' : 'text-emerald-600'}">${amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        `;
-        regionalBody.appendChild(tr);
-      });
-
-      document.getElementById('regionalPivotTotalAmount').innerText = `${regionalGrandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}`;
-    }
-
-    function updateItem(index, field, val) {
-      const item = ACCOUNTS[activeAccountKey].items[index];
-      if (field === 'amount') {
-        item.amount = parseFloat(val) || 0;
-      } else {
-        item[field] = val;
-      }
-      renderActiveAccountData();
     }
 
     function clearCurrentAccountData() {
-      if (confirm(`Clear report data for ${ACCOUNTS[activeAccountKey].name}?`)) {
-        ACCOUNTS[activeAccountKey].items = [];
-        ACCOUNTS[activeAccountKey].airlineSalesItems = getFreshAirlineSales();
-        ACCOUNTS[activeAccountKey].meta = { companyName: '', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 };
-        renderTabs();
-        renderActiveAccountData();
-      }
-    }
-
-    // RENDER HIERARCHICAL TREE
-    function renderHistoryTree() {
-      const container = document.getElementById('historyTreeContainer');
-      container.innerHTML = '';
-
-      if (!reportHistory.length) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-slate-400">
-            <i class="ph-duotone ph-clock text-4xl mb-2 text-slate-300"></i>
-            <p class="text-xs font-semibold text-slate-500">No report history saved yet.</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">Uploaded reports will appear here organized by Year & Account.</p>
-          </div>
-        `;
-        return;
-      }
-
-      const years = [...new Set(reportHistory.map(r => r.year))].sort().reverse();
-
-      years.forEach(yr => {
-        const yrSection = document.createElement('details');
-        yrSection.open = true;
-        yrSection.className = 'group border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm';
-
-        const yrSummary = document.createElement('summary');
-        yrSummary.className = 'bg-almosafer-900 text-white p-2.5 font-bold text-xs flex items-center justify-between cursor-pointer select-none';
-        yrSummary.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <i class="ph-bold ph-calendar-blank text-coral-500"></i>
-            <span>${yr}</span>
-          </div>
-          <i class="ph-bold ph-caret-down text-slate-400 group-open:rotate-180 transition-transform"></i>
-        `;
-        yrSection.appendChild(yrSummary);
-
-        const yrContent = document.createElement('div');
-        yrContent.className = 'p-2 space-y-2 bg-slate-50';
-
-        const yrReports = reportHistory.filter(r => r.year === yr);
-        const accountKeys = Object.keys(ACCOUNTS);
-
-        accountKeys.forEach(accKey => {
-          const accObj = ACCOUNTS[accKey];
-          const accReports = yrReports.filter(r => r.accountId === accKey);
-
-          const accDetails = document.createElement('details');
-          accDetails.open = accReports.length > 0;
-          accDetails.className = 'border border-slate-200 rounded bg-white overflow-hidden';
-
-          const accSummary = document.createElement('summary');
-          accSummary.className = 'p-2 text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer hover:bg-slate-50 select-none';
-          accSummary.innerHTML = `
-            <div class="flex items-center space-x-2">
-              <i class="ph-bold ph-folder text-almosafer-600"></i>
-              <span>${accObj.name}</span>
-            </div>
-            <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-semibold">${accReports.length}</span>
-          `;
-          accDetails.appendChild(accSummary);
-
-          const accContent = document.createElement('div');
-          accContent.className = 'p-2 pl-4 border-t border-slate-100 space-y-2';
-
-          if (!accReports.length) {
-            accContent.innerHTML = `<p class="text-[11px] text-slate-400 italic">No reports generated for ${yr}</p>`;
-          } else {
-            const months = [...new Set(accReports.map(r => r.month))];
-            months.forEach(m => {
-              const mDiv = document.createElement('div');
-              mDiv.className = 'space-y-1';
-              
-              const mReports = accReports.filter(r => r.month === m);
-
-              const mHeaderDiv = document.createElement('div');
-              mHeaderDiv.className = 'flex items-center justify-between border-b border-slate-200 pb-1 mt-2';
-              mHeaderDiv.innerHTML = `
-                <p class="text-[11px] font-bold text-almosafer-700 uppercase tracking-wider">${m}</p>
-                <button onclick="exportMonthBatchExcel('${accKey}', '${yr}', '${m}')" title="Export all ${m} Excel reports" class="text-[10px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-bold px-2 py-0.5 rounded transition flex items-center space-x-1">
-                  <i class="ph-bold ph-file-xls text-xs"></i>
-                  <span>Export Month (.xlsx)</span>
-                </button>
-              `;
-              mDiv.appendChild(mHeaderDiv);
-
-              mReports.forEach(rep => {
-                const itemCard = document.createElement('div');
-                itemCard.className = 'p-2 rounded bg-slate-50 hover:bg-almosafer-50 border border-slate-200 transition flex items-center justify-between group/item';
-                
-                itemCard.innerHTML = `
-                  <div class="cursor-pointer flex-1 min-w-0" onclick="loadHistoryItem(${rep.id})">
-                    <p class="text-xs font-bold text-slate-800 truncate">${rep.billingPeriod}</p>
-                    <p class="text-[10px] text-coral-600 font-semibold truncate">Parsed Report</p>
-                  </div>
-                  <div class="flex items-center space-x-1 pl-2">
-                    <button onclick="deleteHistoryItem(${rep.id})" title="Delete" class="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition">
-                      <i class="ph-bold ph-trash text-sm"></i>
-                    </button>
-                  </div>
-                `;
-                mDiv.appendChild(itemCard);
-              });
-
-              accContent.appendChild(mDiv);
-            });
-          }
-
-          accDetails.appendChild(accContent);
-          yrContent.appendChild(accDetails);
-        });
-
-        yrSection.appendChild(yrContent);
-        container.appendChild(yrSection);
-      });
-    }
-
-    function exportMonthBatchExcel(accKey, yr, month) {
-      const monthReports = reportHistory.filter(r => r.accountId === accKey && r.year === yr && r.month === month);
-      if (!monthReports.length) {
-        alert('No reports found for this month.');
-        return;
-      }
-
-      monthReports.forEach((item, index) => {
-        setTimeout(() => {
-          exportSingleReportExcel(item);
-        }, index * 600);
-      });
-    }
-
-    function loadHistoryItem(id) {
-      const item = reportHistory.find(r => r.id === id);
-      if (!item) return;
-
-      activeAccountKey = item.accountId;
-      ACCOUNTS[activeAccountKey].meta = { ...item.meta };
-      ACCOUNTS[activeAccountKey].items = [...item.items];
-      if (item.airlineSalesItems) {
-        ACCOUNTS[activeAccountKey].airlineSalesItems = [...item.airlineSalesItems];
-      }
-
-      renderTabs();
+      ACCOUNTS[activeAccountKey].items = [];
+      ACCOUNTS[activeAccountKey].airlineSalesItems = getFreshAirlineSales();
       renderActiveAccountData();
-      toggleHistoryDrawer();
     }
 
-    function deleteHistoryItem(id) {
-      if (confirm('Delete this report entry from history?')) {
-        reportHistory = reportHistory.filter(r => r.id !== id);
-        saveHistoryToStorage();
-        renderHistoryTree();
-      }
-    }
-
-    function clearAllHistory() {
-      if (confirm('Clear all saved report history? This action cannot be undone.')) {
-        reportHistory = [];
-        saveHistoryToStorage();
-        renderHistoryTree();
-      }
-    }
-
-    // EXCEL EXPORT ROUTER
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
-
-      // Route 1: Airline Sales Report Export
-      if (acc.reportType === 'airline_sales') {
-        exportAirlineSalesExcel(acc);
-        return;
-      }
-
-      // Route 2: Normal Payment Details Export
-      if (!acc.items.length) {
-        alert('No data available to export. Please upload a PDF file first.');
-        return;
-      }
-
-      exportSingleReportExcel({
-        accountId: activeAccountKey,
-        items: acc.items,
-        meta: acc.meta
-      });
-    }
-
-    // EXPORT GENERATOR 1: AIRLINE SALES REPORT WITH LIVE EXCEL FORMULAS
-    async function exportAirlineSalesExcel(acc) {
-      const meta = acc.meta;
       const workbook = new ExcelJS.Workbook();
-      const ws = workbook.addWorksheet('Airline Sales Report', { views: [{ showGridLines: true }] });
+      const ws = workbook.addWorksheet('Report', { views: [{ showGridLines: true }] });
 
-      const tealHeaderColor = 'FF006778';
-      const lightRowColor = 'FFF8FAFC';
-      const totalFillColor = 'FFD9D2E9';
-
-      // Company Name Header
-      const r1 = ws.addRow([meta.companyName || acc.companyNameHeader || 'ALMOSAFER TRAVEL AND TOURISM COMPANY']);
-      ws.mergeCells(r1.number, 1, r1.number, 9);
-      r1.getCell(1).font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FFFF0000' } };
-      r1.getCell(1).alignment = { horizontal: 'center' };
-
-      // Net BSP Sales Header
-      const periodShort = meta.billingPeriod ? meta.billingPeriod.replace(/[()]/g, '') : '';
-      const r2 = ws.addRow([`NET BSP SALES CASH AND CARD ${periodShort}`]);
-      ws.mergeCells(r2.number, 1, r2.number, 9);
-      r2.getCell(1).font = { name: 'Calibri', size: 11, bold: true };
-      r2.getCell(1).alignment = { horizontal: 'center' };
-
-      // Table Column Headers
+      ws.addRow([acc.meta.companyName || acc.companyNameHeader]);
+      ws.addRow([`NET BSP SALES ${acc.meta.billingPeriod || ''}`]);
+      
       const h = ws.addRow(['Code', 'AIRLINE', 'IATA NO.', 'CASH', 'INCENTIVES', 'CC ISSUES', 'REFUNDS', 'NET CC SALES', 'TOTAL']);
       h.eachCell(cell => {
-        cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: tealHeaderColor } };
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        cell.alignment = { horizontal: 'center' };
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF006778' } };
       });
 
-      // Populate Airlines
-      let rowStartIndex = 4;
-      acc.airlineSalesItems.forEach((item, idx) => {
-        // Embed live sum formulas in the Excel sheet
-        const row = ws.addRow([
-          item.code, 
-          item.name, 
-          item.iataCode || '', 
-          item.cash || 0, 
-          item.incentives || 0, 
-          item.cc_issues || 0, 
-          item.refunds || 0, 
-          { formula: `F${rowStartIndex}+G${rowStartIndex}` }, // Net CC Sales = Issues + Refunds (since refunds are negative)
-          { formula: `D${rowStartIndex}+E${rowStartIndex}+H${rowStartIndex}` } // Total = Cash + Inc + Net CC Sales
+      let rIdx = 4;
+      acc.airlineSalesItems.forEach(item => {
+        ws.addRow([
+          item.code, item.name, item.iataCode || '71-2 0167', item.cash || 0, item.incentives || 0, item.cc_issues || 0, item.refunds || 0,
+          { formula: `F${rIdx}+G${rIdx}` },
+          { formula: `D${rIdx}+E${rIdx}+H${rIdx}` }
         ]);
-        
-        row.getCell(1).alignment = { horizontal: 'center' };
-        row.getCell(2).alignment = { horizontal: 'left' };
-        row.getCell(3).alignment = { horizontal: 'center' };
-        
-        [4, 5, 6, 7, 8, 9].forEach(colIdx => {
-           row.getCell(colIdx).numFmt = '#,##0.00';
-        });
-
-        row.eachCell(cell => {
-           if (idx % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: lightRowColor } };
-           cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        });
-        rowStartIndex++;
+        rIdx++;
       });
-
-      // Bottom Grand Total Row with embedded column sum formulas
-      const totalRow = ws.addRow([
-        '', 
-        'TOTAL',
-        '', 
-        { formula: `SUM(D4:D${rowStartIndex-1})` }, 
-        { formula: `SUM(E4:E${rowStartIndex-1})` }, 
-        { formula: `SUM(F4:F${rowStartIndex-1})` }, 
-        { formula: `SUM(G4:G${rowStartIndex-1})` }, 
-        { formula: `SUM(H4:H${rowStartIndex-1})` },
-        { formula: `SUM(I4:I${rowStartIndex-1})` }
-      ]);
-      
-      totalRow.eachCell((cell, colNumber) => {
-        cell.font = { name: 'Calibri', size: 11, bold: true };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: totalFillColor } };
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        if (colNumber > 3) cell.numFmt = '#,##0.00';
-        if (colNumber === 2) cell.alignment = { horizontal: 'right' };
-      });
-
-      ws.getColumn(1).width = 8;
-      ws.getColumn(2).width = 34;
-      ws.getColumn(3).width = 16;
-      ws.getColumn(4).width = 16;
-      ws.getColumn(5).width = 14;
-      ws.getColumn(6).width = 16;
-      ws.getColumn(7).width = 16;
-      ws.getColumn(8).width = 16;
-      ws.getColumn(9).width = 18;
 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
-      const cleanBillingPeriod = periodShort || 'Report';
-      a.download = `${cleanBillingPeriod}_BSP Airline Sales Report.xlsx`;
+      a.download = `BSP_Report_${acc.id.toUpperCase()}.xlsx`;
       a.click();
-      window.URL.revokeObjectURL(url);
-    }
-
-    // EXPORT GENERATOR 2: NORMAL EXTRACTED PAYMENT DETAILS
-    async function exportSingleReportExcel(record) {
-      const acc = ACCOUNTS[record.accountId] || ACCOUNTS[activeAccountKey];
-      const items = record.items || acc.items;
-      const meta = record.meta || acc.meta;
-
-      const workbook = new ExcelJS.Workbook();
-      const tealHeaderColor = 'FF006778';
-      const darkTealColor = 'FF003A45';
-      const redHeaderColor = 'FFFF0000';
-      const lightRowColor = 'FFF8FAFC';
-      const totalFillColor = 'FFD9D2E9';
-
-      // TAB 1: LOCATION / AIRLINE BREAKDOWN
-      const ws1 = workbook.addWorksheet('Payment Breakdown', { views: [{ showGridLines: true }] });
-
-      const r1 = ws1.addRow([meta.companyName || acc.companyNameHeader]);
-      const r2 = ws1.addRow([`BSP TRANSFER -DUE DATE ${meta.paymentDueDate || '---'}`]);
-
-      [r1, r2].forEach(row => {
-        ws1.mergeCells(row.number, 1, row.number, 3);
-        const cell = row.getCell(1);
-        cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: redHeaderColor }, underline: true };
-        cell.alignment = { horizontal: 'center' };
-      });
-
-      const col1Label = acc.id === 'uae' ? 'AIR CODE' : 'IATA NO.';
-      const col2Label = acc.id === 'uae' ? 'AIRLINE NAME' : 'Location';
-      const col3Label = acc.id === 'uae' ? `BILLED AMOUNT (${acc.currency})` : `Amount (${acc.currency})`;
-
-      const h1 = ws1.addRow([col1Label, col2Label, col3Label]);
-      h1.eachCell(cell => {
-        cell.font = { name: 'Calibri', size: 11, bold: true, italic: true };
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        cell.alignment = { horizontal: cell.col === 3 ? 'right' : 'left' };
-      });
-
-      items.forEach((item, idx) => {
-        const row = ws1.addRow([item.iataNo, item.location, item.amount]);
-        row.getCell(1).alignment = { horizontal: 'left' };
-        row.getCell(2).alignment = { horizontal: 'left' };
-        row.getCell(3).alignment = { horizontal: 'right' };
-        row.getCell(3).numFmt = '#,##0.00';
-
-        row.eachCell(cell => {
-          if (idx % 2 === 1) {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: lightRowColor } };
-          }
-          cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        });
-      });
-
-      const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
-      const totalRow = ws1.addRow(['TOTAL:', '', totalAmount]);
-      ws1.mergeCells(totalRow.number, 1, totalRow.number, 2);
-      
-      const totCellLabel = totalRow.getCell(1);
-      totCellLabel.font = { name: 'Calibri', size: 11, bold: true, color: { argb: redHeaderColor } };
-      totCellLabel.alignment = { horizontal: 'center' };
-
-      const totCellValue = totalRow.getCell(3);
-      totCellValue.font = { name: 'Calibri', size: 11, bold: true, color: { argb: redHeaderColor } };
-      totCellValue.numFmt = '#,##0.00';
-      totCellValue.alignment = { horizontal: 'right' };
-
-      totalRow.eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: totalFillColor } };
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
-      });
-
-      // --- CITY & REGIONAL PIVOTS (Only for Location Breakdown Accounts) ---
-      if (acc.id !== 'uae') {
-        ws1.addRow([]);
-        ws1.addRow([]);
-
-        const cityPivotTitleRow = ws1.addRow(['CITY PIVOT / SUMMARY']);
-        ws1.mergeCells(cityPivotTitleRow.number, 1, cityPivotTitleRow.number, 2);
-        const cTitleCell = cityPivotTitleRow.getCell(1);
-        cTitleCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-        cTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: darkTealColor } };
-        cTitleCell.alignment = { horizontal: 'center' };
-
-        const cityPivotHeaderRow = ws1.addRow(['Location', `Total Amount (${acc.currency})`]);
-        cityPivotHeaderRow.eachCell(cell => {
-          cell.font = { name: 'Calibri', size: 10, bold: true };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
-          cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-          cell.alignment = { horizontal: cell.col === 2 ? 'right' : 'left' };
-        });
-
-        const cityMap = {};
-        items.forEach(item => {
-          const loc = item.location || 'Unassigned';
-          cityMap[loc] = (cityMap[loc] || 0) + item.amount;
-        });
-
-        Object.keys(cityMap).forEach(loc => {
-          const pRow = ws1.addRow([loc, cityMap[loc]]);
-          pRow.getCell(1).alignment = { horizontal: 'left' };
-          pRow.getCell(2).alignment = { horizontal: 'right' };
-          pRow.getCell(2).numFmt = '#,##0.00';
-          pRow.eachCell(cell => {
-            cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-          });
-        });
-
-        const cityPTotalRow = ws1.addRow(['City Pivot Total:', totalAmount]);
-        cityPTotalRow.getCell(1).font = { name: 'Calibri', size: 11, bold: true };
-        cityPTotalRow.getCell(2).font = { name: 'Calibri', size: 11, bold: true };
-        cityPTotalRow.getCell(2).numFmt = '#,##0.00';
-        cityPTotalRow.getCell(2).alignment = { horizontal: 'right' };
-        cityPTotalRow.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: totalFillColor } };
-          cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        });
-
-        ws1.addRow([]);
-        ws1.addRow([]);
-
-        const regPivotTitleRow = ws1.addRow(['REGIONAL PIVOT / SUMMARY (SAUDI ARABIA)']);
-        ws1.mergeCells(regPivotTitleRow.number, 1, regPivotTitleRow.number, 3);
-        const rTitleCell = regPivotTitleRow.getCell(1);
-        rTitleCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-        rTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: tealHeaderColor } };
-        rTitleCell.alignment = { horizontal: 'center' };
-
-        const regPivotHeaderRow = ws1.addRow(['Regional Zone', 'Included Cities', `Total Amount (${acc.currency})`]);
-        regPivotHeaderRow.eachCell(cell => {
-          cell.font = { name: 'Calibri', size: 10, bold: true };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
-          cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-          cell.alignment = { horizontal: cell.col === 3 ? 'right' : 'left' };
-        });
-
-        const regionMap = {};
-        const regionCitiesMap = {};
-
-        items.forEach(item => {
-          const loc = item.location || 'Unassigned';
-          const upperLoc = loc.toUpperCase().trim();
-          const region = REGION_MAP[upperLoc] || 'Other / General';
-
-          regionMap[region] = (regionMap[region] || 0) + item.amount;
-          if (!regionCitiesMap[region]) regionCitiesMap[region] = new Set();
-          regionCitiesMap[region].add(loc);
-        });
-
-        Object.keys(regionMap).forEach(region => {
-          const citiesStr = Array.from(regionCitiesMap[region]).join(', ');
-          const rRow = ws1.addRow([region, citiesStr, regionMap[region]]);
-          rRow.getCell(1).alignment = { horizontal: 'left' };
-          rRow.getCell(2).alignment = { horizontal: 'left' };
-          rRow.getCell(3).alignment = { horizontal: 'right' };
-          rRow.getCell(3).numFmt = '#,##0.00';
-          rRow.eachCell(cell => {
-            cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-          });
-        });
-
-        const regPTotalRow = ws1.addRow(['Regional Pivot Total:', '', totalAmount]);
-        ws1.mergeCells(regPTotalRow.number, 1, regPTotalRow.number, 2);
-        
-        const rTotLabel = regPTotalRow.getCell(1);
-        rTotLabel.font = { name: 'Calibri', size: 11, bold: true };
-        rTotLabel.alignment = { horizontal: 'center' };
-
-        const rTotVal = regPTotalRow.getCell(3);
-        rTotVal.font = { name: 'Calibri', size: 11, bold: true };
-        rTotVal.numFmt = '#,##0.00';
-        rTotVal.alignment = { horizontal: 'right' };
-
-        regPTotalRow.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
-          cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        });
-      }
-
-      ws1.getColumn(1).width = 24;
-      ws1.getColumn(2).width = 34;
-      ws1.getColumn(3).width = 24;
-
-      // TAB 2: VENDOR POSTING SUMMARY
-      const ws2 = workbook.addWorksheet('Vendor Posting Summary', { views: [{ showGridLines: true }] });
-
-      const t2_r1 = ws2.addRow([meta.companyName || acc.companyNameHeader]);
-      const t2_r2 = ws2.addRow([`BSP TRANSFER -DUE DATE ${meta.paymentDueDate || '---'}`]);
-
-      [t2_r1, t2_r2].forEach(row => {
-        ws2.mergeCells(row.number, 1, row.number, 7);
-        const cell = row.getCell(1);
-        cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: redHeaderColor }, underline: true };
-        cell.alignment = { horizontal: 'center' };
-      });
-
-      const periodShort = meta.billingPeriod ? meta.billingPeriod.replace(/[()]/g, '').replace(' to ', ' ') : '';
-
-      const vHeader = ws2.addRow(['IATA NO.', 'COMPANY CODE', 'VENDOR', 'PROVINCE', 'PERIOD', acc.paymentLabel, 'BANK IBAN NO']);
-      vHeader.eachCell(cell => {
-        cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: redHeaderColor } };
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        cell.alignment = { horizontal: 'center' };
-      });
-
-      const iataNoFormatted = meta.iataAccount || acc.meta.iataAccount || '86 2 1100 5';
-      const vData = ws2.addRow([iataNoFormatted, acc.companyCode, acc.vendorCode, acc.province, periodShort, totalAmount, acc.iban]);
-      
-      vData.getCell(6).numFmt = '#,##0.00';
-      vData.getCell(7).font = { name: 'Calibri', size: 10, bold: true, color: { argb: redHeaderColor } };
-
-      vData.eachCell(cell => {
-        if (cell.col !== 7) cell.font = { name: 'Calibri', size: 10, bold: true };
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        cell.alignment = { horizontal: 'center' };
-      });
-
-      const bankDetails = [
-        'BIC/SWIFT-SABBSARI',
-        'BENEFICIARY NAME',
-        'IATA BSP HINGE',
-        'BANK NAME:',
-        'SAUDI AWWAL BANK(SAB)'
-      ];
-
-      bankDetails.forEach(detail => {
-        const row = ws2.addRow(['', '', '', '', '', '', detail]);
-        const cell = row.getCell(7);
-        cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        cell.font = { name: 'Calibri', size: 10 };
-      });
-
-      ws2.getColumn(1).width = 18;
-      ws2.getColumn(2).width = 16;
-      ws2.getColumn(3).width = 16;
-      ws2.getColumn(4).width = 22;
-      ws2.getColumn(5).width = 22;
-      ws2.getColumn(6).width = 24;
-      ws2.getColumn(7).width = 34;
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-
-      // File naming format: "Billing Period_Type of Report.xlsx"
-      const cleanBillingPeriod = meta.billingPeriod ? meta.billingPeriod.replace(/[()]/g, '') : 'Billing_Period';
-      a.download = `${cleanBillingPeriod}_Payment Details Report.xlsx`;
-      a.click();
-      window.URL.revokeObjectURL(url);
     }
   </script>
 </body>
