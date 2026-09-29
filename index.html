@@ -345,8 +345,9 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // ACCURATE SUB-OFFICE BLOCK PARSER (EXACT CASH / CARD / TOTAL MATCHING)
+    // ACCURATE PARSER WITH STRICT ROW TYPE ISOLATION
     function parseAirlineSalesPDF(rawText, acc) {
+      // 1. Clean PDF.js decimal string fusion (e.g. "-684.00001" -> "-684.00")
       const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
       const flatText = cleanRawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       
@@ -354,68 +355,50 @@
       acc.airlineSalesItems = getFreshAirlineSales();
 
       let extractedAny = false;
+      const lines = cleanRawText.split('\n');
+      let currentCode = null;
 
-      // Group raw text by Sub-Office Blocks (e.g. 71-2 0598 2, 71-2 0682 2, 71-2 1306 3...)
-      const subOfficeBlocks = cleanRawText.split(/(?=71-2\s+\d{4}\s+\d)/);
+      for (let i = 0; i < lines.length; i++) {
+        let lineStr = lines[i].trim();
+        
+        // Skip grand combined summary footers
+        if (!lineStr || lineStr.startsWith('COMBINED') || lineStr.startsWith('WEBSALES') || lineStr.startsWith('BSP TOTAL')) {
+          continue;
+        }
 
-      subOfficeBlocks.forEach(blockText => {
-        const lines = blockText.split('\n');
-        let currentCode = null;
+        // Identify active airline for this line
+        let prefixMatch = lineStr.match(/^(\d{3})\b/);
+        if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
+          currentCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
+        } else {
+          let matched = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
+          if (matched) currentCode = matched.code;
+        }
 
-        for (let i = 0; i < lines.length; i++) {
-          let lineStr = lines[i].trim();
-          
-          if (!lineStr || lineStr.startsWith('AGENT GROUP') || lineStr.startsWith('COMBINED') || lineStr.startsWith('WEBSALES') || lineStr.startsWith('BSP TOTAL')) {
-            continue;
-          }
+        if (currentCode) {
+          let item = acc.airlineSalesItems.find(a => a.code === currentCode);
+          if (item) {
+            let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
-          // 1. Identify Airline Code in this line
-          let prefixMatch = lineStr.match(/^(\d{3})\b/);
-          if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
-            currentCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
-          } else {
-            let matchedTemplate = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
-            if (matchedTemplate) {
-              currentCode = matchedTemplate.code;
+            // STRICT ROW ISOLATION:
+            // 1. Read CARD line ONLY -> CC Issues (index 0), CC Refunds (index 1)
+            if (lineStr.includes('CARD') && decs.length >= 1) {
+              extractedAny = true;
+              item.cc_issues += decs[0] || 0;
+              item.refunds += decs[1] || 0;
+            } 
+            // 2. Read CASH line -> Balance Payable (far-right decimal)
+            else if (lineStr.includes('CASH') && decs.length >= 1) {
+              extractedAny = true;
+              item.cash += decs[decs.length - 1] || 0;
+            } 
+            // 3. Read TOTAL line ONLY as fallback if CASH line had no Balance Payable on its own row
+            else if (lineStr.startsWith('TOTAL') && decs.length >= 1 && item.cash === 0 && !lineStr.includes('AGENT')) {
+              item.cash += decs[decs.length - 1] || 0;
             }
-          }
-
-          // 2. Extract Values for Active Airline
-          if (currentCode) {
-            let item = acc.airlineSalesItems.find(a => a.code === currentCode);
-            if (item) {
-              let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
-
-              if (lineStr.includes('CARD') && decs.length >= 1) {
-                extractedAny = true;
-                item.cc_issues += decs[0] || 0; // CC ISSUES = 1st decimal
-                item.refunds += decs[1] || 0;   // REFUNDS = 2nd decimal
-              } 
-              else if (lineStr.includes('CASH') && decs.length >= 1) {
-                extractedAny = true;
-                item.cash += decs[decs.length - 1] || 0; // Balance Payable = Far-right decimal
-              } 
-              else if (lineStr.startsWith('TOTAL') && decs.length >= 1) {
-                // If CASH line had no Balance Payable figure on its own row (like SA on Page 8),
-                // take the final Balance Payable from the TOTAL row of this sub-office block
-                if (decs.length >= 1) {
-                  let balPayable = decs[decs.length - 1];
-                  // If cash was not added yet for this block, attribute balance payable
-                  if (item.cash === 0) {
-                    item.cash = balPayable;
-                    extractedAny = true;
-                  }
-                }
-              }
-            }
-          }
-
-          // Reset code when a block totals header is reached
-          if (lineStr.includes('TOTALS:')) {
-            currentCode = null;
           }
         }
-      });
+      }
 
       if (extractedAny) {
         saveCurrentToHistory();
@@ -497,6 +480,7 @@
         tableFooterWrapper.classList.remove('hidden');
         document.getElementById('tableHeaderDueTitle').innerText = 'BSP AIRLINE SALES REPORT';
 
+        // NO IATA COLUMN IN HEADER
         tableColHeaders.innerHTML = `
           <th class="p-3">CODE</th><th class="p-3">AIRLINE NAME</th>
           <th class="p-3 text-right">CASH</th><th class="p-3 text-right">INCENTIVES</th><th class="p-3 text-right">CC ISSUES</th>
@@ -524,6 +508,7 @@
           const tr = document.createElement('tr');
           tr.className = isNonZero ? 'bg-emerald-50 hover:bg-emerald-100 transition border-b border-emerald-200' : 'hover:bg-slate-50 transition border-b border-slate-100';
           
+          // NO IATA COLUMN IN DATA ROWS
           tr.innerHTML = `
             <td class="p-3 font-mono ${isNonZero ? 'text-emerald-900 font-bold' : ''}">${item.code}</td>
             <td class="p-3 font-bold ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
@@ -626,7 +611,7 @@
       renderTabs(); renderActiveAccountData();
     }
 
-    // EXCEL EXPORTS
+    // EXCEL EXPORTS (NO IATA COLUMN IN EXCEL)
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
 
