@@ -39,23 +39,16 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-slate-50 text-slate-800 relative">
 
-  <!-- Header -->
   <header class="bg-almosafer-900 border-b border-almosafer-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center space-x-3">
-          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center">
-            <i class="ph-bold ph-airplane text-2xl"></i>
-          </div>
+          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center"><i class="ph-bold ph-airplane text-2xl"></i></div>
           <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1>
-              <span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span>
-            </div>
+            <div class="flex items-center space-x-2"><h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1><span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span></div>
             <p class="text-xs text-almosafer-100/80 font-medium">Reports Extractor</p>
           </div>
         </div>
-
         <div class="flex items-center space-x-3">
           <button onclick="toggleHistoryDrawer()" class="bg-almosafer-700 hover:bg-almosafer-600 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 transition border border-almosafer-500/30">
             <i class="ph-bold ph-clock-counter-clockwise text-lg"></i><span>History</span>
@@ -71,7 +64,6 @@
     </div>
   </header>
 
-  <!-- Sub-Bar Navigation -->
   <div class="bg-white border-b border-slate-200 sticky top-16 z-20 no-print shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -83,7 +75,6 @@
             <i class="ph-bold ph-files text-sm"></i><span>Reports</span>
           </button>
         </div>
-        
         <div id="reportDropdownWrapper" class="flex items-center space-x-2">
           <label for="reportTypeSelect" class="text-xs text-slate-500 font-medium whitespace-nowrap">Selected Report:</label>
           <select id="reportTypeSelect" onchange="changeReportType(this.value)" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-coral-500 focus:border-coral-500 font-semibold min-w-[200px]">
@@ -92,7 +83,6 @@
           </select>
         </div>
       </div>
-
       <div id="accountTabsContainer" class="flex items-center justify-between">
         <nav class="flex space-x-2 overflow-x-auto w-full custom-scrollbar" id="accountTabs"></nav>
       </div>
@@ -100,8 +90,6 @@
   </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-    <!-- DASHBOARD VIEW -->
     <div id="viewDashboard" class="hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-emerald-500">
@@ -119,9 +107,7 @@
       </div>
     </div>
 
-    <!-- REPORTS VIEW -->
     <div id="viewReports" class="space-y-6">
-
       <div class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-almosafer-600 transition-colors relative no-print cursor-pointer shadow-sm" id="dropZone">
         <input type="file" id="pdfFileInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple>
         <div class="flex flex-col items-center justify-center space-y-2">
@@ -146,7 +132,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data matched and loaded. Active airlines moved to the top.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -220,7 +206,7 @@
     ];
 
     function getFreshAirlineSales() {
-      return JSON.parse(JSON.stringify(AIRLINE_TEMPLATE_DATA)).map(item => ({ ...item, iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0 }));
+      return JSON.parse(JSON.stringify(AIRLINE_TEMPLATE_DATA)).map(item => ({ ...item, cash: 0, incentives: 0, cc_issues: 0, refunds: 0 }));
     }
 
     const REGION_MAP = {
@@ -333,85 +319,52 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // ACCURATE AIRLINE SALES PARSER HANDLES PDF.JS MERGED DECIMAL SUFFIXES
+    // ACCURATE 2-CHAR CODE AIRLINE SALES PARSER WITH SANITIZED DECIMAL SUFFIXES
     function parseAirlineSalesPDF(rawText, acc) {
-      const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
+      // Clean PDF.js decimal string fusion issue (e.g. "-684.00001" -> "-684.00")
+      const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
+      const flatText = cleanRawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
       acc.airlineSalesItems = getFreshAirlineSales();
 
-      // Store IATA Agent blocks
-      const agentRegex = /\b(\d{2}-\d\s\d{4}\s\d|\d{7})\b/g;
-      let agents = []; let m;
-      while ((m = agentRegex.exec(flatText)) !== null) agents.push({ code: m[1], index: m.index });
-
-      // Anchor search using 2-character code OR 3-digit numeric code
-      const airlineAnchorRegex = /(?:\b(\d{3})\s+([A-Z0-9]{2})\b|\b([A-Z0-9]{2})\b\s+[A-Za-z.\s]{3,30}\s+(?:CASH|CARD))/g;
-      let matches = [];
-      let match;
-
-      while ((match = airlineAnchorRegex.exec(flatText)) !== null) {
-        let code = (match[2] || match[3] || '').toUpperCase();
-        if (code && AIRLINE_TEMPLATE_DATA.some(a => a.code === code)) {
-          matches.push({ strCode: code, index: match.index });
-        }
-      }
-
       let extractedAny = false;
 
-      for (let i = 0; i < matches.length; i++) {
-        const curr = matches[i];
-        const nextIndex = (i < matches.length - 1) ? matches[i + 1].index : flatText.length;
-        const blockText = flatText.substring(curr.index, Math.min(nextIndex, curr.index + 350));
+      // Scan page by page and line by line
+      const lines = cleanRawText.split('\n');
 
-        let currentIataAgent = acc.meta.iataAccount || '71-2 0167 5';
-        for (let k = agents.length - 1; k >= 0; k--) {
-          if (agents[k].index < curr.index) { currentIataAgent = agents[k].code; break; }
-        }
+      lines.forEach(line => {
+        let lineStr = line.trim();
 
-        const fopMatches = [...blockText.matchAll(/\b(CASH|CARD)\b/gi)];
+        // Skip Totals and Header summary lines
+        if (lineStr.startsWith('AGENT') || lineStr.startsWith('COMBINED') || lineStr.startsWith('TOTAL')) return;
 
-        if (fopMatches.length > 0) {
-          fopMatches.forEach((fopMatch, fIdx) => {
-            const fop = fopMatch[1].toUpperCase();
-            const fopIndex = fopMatch.index;
-            const subNextIndex = (fIdx < fopMatches.length - 1) ? fopMatches[fIdx + 1].index : blockText.length;
-            const subChunk = blockText.substring(fopIndex, subNextIndex);
+        // Check each known 2-character airline code
+        AIRLINE_TEMPLATE_DATA.forEach(airline => {
+          const code = airline.code;
+          const codeRegex = new RegExp(`\\b${code}\\b`, 'i');
 
-            // Clean PDF.js merged trailing digits from decimal strings (e.g., "-21,014.96065" -> "-21,014.96")
-            let rawDecimals = subChunk.match(/[-+]?[\d,]+\.\d+/g) || [];
-            let decimals = rawDecimals.map(d => {
-              let idx = d.indexOf('.');
-              if (idx !== -1 && d.length > idx + 3) {
-                return d.substring(0, idx + 3);
-              }
-              return d;
-            });
+          if (codeRegex.test(lineStr) && (lineStr.includes('CASH') || lineStr.includes('CARD'))) {
+            // Extract decimal figures from this line
+            let rawDecimals = lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+            let decimals = rawDecimals.map(d => parseFloat(d.replace(/,/g, '')));
 
             if (decimals.length >= 1) {
-              extractedAny = true;
-              let item = acc.airlineSalesItems.find(a => a.code === curr.strCode);
+              let item = acc.airlineSalesItems.find(a => a.code === code);
+              if (item) {
+                extractedAny = true;
 
-              if (!item) {
-                item = { code: curr.strCode, name: curr.strCode, iataCode: currentIataAgent, cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
-                acc.airlineSalesItems.push(item);
-              } else {
-                item.iataCode = currentIataAgent;
-              }
-
-              if (fop === 'CARD') {
-                const issues = parseFloat(decimals[0].replace(/,/g, ''));
-                const refunds = decimals.length >= 2 ? parseFloat(decimals[1].replace(/,/g, '')) : 0;
-                item.cc_issues += issues;
-                item.refunds += refunds;
-              } else if (fop === 'CASH') {
-                // Rule: CASH column gets BALANCE PAYABLE (the last decimal figure)
-                const balancePayable = parseFloat(decimals[decimals.length - 1].replace(/,/g, ''));
-                item.cash += balancePayable;
+                if (lineStr.includes('CARD')) {
+                  item.cc_issues += decimals[0] || 0;
+                  item.refunds += decimals[1] || 0; // Negative refunds
+                } else if (lineStr.includes('CASH')) {
+                  // Rule: CASH column gets BALANCE PAYABLE (the last decimal entry on the line)
+                  item.cash += decimals[decimals.length - 1] || 0;
+                }
               }
             }
-          });
-        }
-      }
+          }
+        });
+      });
 
       // Auto-Sort active airlines to the top
       acc.airlineSalesItems.sort((a, b) => {
@@ -497,8 +450,9 @@
         pivotContainer.classList.add('hidden'); tableFooterWrapper.classList.add('hidden');
         document.getElementById('tableHeaderDueTitle').innerText = 'BSP AIRLINE SALES REPORT';
 
+        // NO IATA COLUMN IN HEADER
         tableColHeaders.innerHTML = `
-          <th class="p-3">CODE</th><th class="p-3">AIRLINE NAME</th><th class="p-3 text-center">IATA NO.</th>
+          <th class="p-3">CODE</th><th class="p-3">AIRLINE NAME</th>
           <th class="p-3 text-right">CASH</th><th class="p-3 text-right">INCENTIVES</th><th class="p-3 text-right">CC ISSUES</th>
           <th class="p-3 text-right">REFUNDS</th><th class="p-3 text-right">NET CC SALES</th><th class="p-3 text-right">TOTAL</th>
         `;
@@ -515,10 +469,10 @@
           const tr = document.createElement('tr');
           tr.className = isNonZero ? 'bg-emerald-50 hover:bg-emerald-100 transition border-b border-emerald-200' : 'hover:bg-slate-50 transition border-b border-slate-100';
           
+          // NO IATA COLUMN IN DATA ROWS
           tr.innerHTML = `
             <td class="p-3 font-mono ${isNonZero ? 'text-emerald-900 font-bold' : ''}">${item.code}</td>
             <td class="p-3 font-bold ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
-            <td class="p-3 text-slate-500 text-center text-[10px] whitespace-nowrap">${item.iataCode || '---'}</td>
             <td class="p-3 text-right ${item.cash ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.incentives ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.incentives.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
@@ -600,11 +554,11 @@
       renderTabs(); renderActiveAccountData();
     }
 
-    // EXCEL EXPORTS
+    // EXCEL EXPORTS (NO IATA COLUMN IN EXCEL)
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
 
-      // ROUTE 1: AIRLINE SALES
+      // ROUTE 1: AIRLINE SALES EXPORT
       if (acc.reportType === 'airline_sales') {
         const workbook = new ExcelJS.Workbook();
         const ws = workbook.addWorksheet('Airline Sales Report', { views: [{ showGridLines: true }] });
@@ -612,22 +566,45 @@
         
         ws.addRow([acc.meta.companyName || acc.companyNameHeader]).font = { size: 12, bold: true, color: { argb: 'FFFF0000' } };
         ws.addRow([`NET BSP SALES CASH AND CARD ${periodShort}`]).font = { bold: true };
-        ws.mergeCells(1, 1, 1, 9); ws.mergeCells(2, 1, 2, 9);
+        ws.mergeCells(1, 1, 1, 8); ws.mergeCells(2, 1, 2, 8);
 
-        const h = ws.addRow(['Code', 'AIRLINE', 'IATA NO.', 'CASH', 'INCENTIVES', 'CC ISSUES', 'REFUNDS', 'NET CC SALES', 'TOTAL']);
+        // NO IATA COLUMN IN EXCEL
+        const h = ws.addRow(['Code', 'AIRLINE', 'CASH', 'INCENTIVES', 'CC ISSUES', 'REFUNDS', 'NET CC SALES', 'TOTAL']);
         h.eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF006778' } }; c.alignment = { horizontal: 'center' }; });
 
         let rIdx = 4;
         acc.airlineSalesItems.forEach(item => {
-          const row = ws.addRow([item.code, item.name, item.iataCode || '', item.cash || 0, item.incentives || 0, item.cc_issues || 0, item.refunds || 0, { formula: `F${rIdx}+G${rIdx}` }, { formula: `D${rIdx}+E${rIdx}+H${rIdx}` }]);
-          row.getCell(1).alignment = { horizontal: 'center' }; row.getCell(3).alignment = { horizontal: 'center' };
-          [4,5,6,7,8,9].forEach(col => row.getCell(col).numFmt = '#,##0.00');
+          const row = ws.addRow([
+            item.code, 
+            item.name, 
+            item.cash || 0, 
+            item.incentives || 0, 
+            item.cc_issues || 0, 
+            item.refunds || 0, 
+            { formula: `E${rIdx}+F${rIdx}` }, 
+            { formula: `C${rIdx}+D${rIdx}+G${rIdx}` }
+          ]);
+          row.getCell(1).alignment = { horizontal: 'center' };
+          [3,4,5,6,7,8].forEach(col => row.getCell(col).numFmt = '#,##0.00');
           rIdx++;
         });
 
-        const totalRow = ws.addRow(['', 'TOTAL', '', { formula: `SUM(D4:D${rIdx-1})` }, { formula: `SUM(E4:E${rIdx-1})` }, { formula: `SUM(F4:F${rIdx-1})` }, { formula: `SUM(G4:G${rIdx-1})` }, { formula: `SUM(H4:H${rIdx-1})` }, { formula: `SUM(I4:I${rIdx-1})` }]);
-        totalRow.eachCell((c, col) => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D2E9' } }; if (col > 3) c.numFmt = '#,##0.00'; });
-        ws.columns = [{width: 8}, {width: 34}, {width: 16}, {width: 16}, {width: 14}, {width: 16}, {width: 16}, {width: 16}, {width: 18}];
+        const totalRow = ws.addRow([
+          '', 
+          'TOTAL', 
+          { formula: `SUM(C4:C${rIdx-1})` }, 
+          { formula: `SUM(D4:D${rIdx-1})` }, 
+          { formula: `SUM(E4:E${rIdx-1})` }, 
+          { formula: `SUM(F4:F${rIdx-1})` }, 
+          { formula: `SUM(G4:G${rIdx-1})` }, 
+          { formula: `SUM(H4:H${rIdx-1})` }
+        ]);
+        totalRow.eachCell((c, col) => { 
+          c.font = { bold: true }; 
+          c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D2E9' } }; 
+          if (col > 2) c.numFmt = '#,##0.00'; 
+        });
+        ws.columns = [{width: 8}, {width: 36}, {width: 16}, {width: 14}, {width: 16}, {width: 16}, {width: 16}, {width: 18}];
         
         const blob = new Blob([await workbook.xlsx.writeBuffer()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob);
