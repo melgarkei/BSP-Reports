@@ -345,67 +345,61 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // TOKEN-ANCHORED PARSER ENGINE (HEADER-AGNOSTIC, 100% LAYOUT SAFE)
+    // ACCURATE SINGLE-PASS PARSER FOR ALL AIRLINES
     function parseAirlineSalesPDF(rawText, acc) {
-      // 1. Flatten PDF text completely and clean fused decimal suffixes
-      let cleanText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
-      let flatText = cleanText.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ');
+      const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
+      const flatText = cleanRawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       
       extractCommonMeta(rawText, flatText, acc);
       acc.airlineSalesItems = getFreshAirlineSales();
 
       let extractedAny = false;
+      const lines = cleanRawText.split('\n');
+      let currentCode = null;
 
-      // Iterate through master airline list and scan token blocks
-      AIRLINE_TEMPLATE_DATA.forEach(airline => {
-        const code = airline.code;
-        const numPrefix = Object.keys(NUMERIC_PREFIX_MAP).find(k => NUMERIC_PREFIX_MAP[k] === code);
+      for (let i = 0; i < lines.length; i++) {
+        let lineStr = lines[i].trim();
+        
+        if (!lineStr || lineStr.startsWith('COMBINED') || lineStr.startsWith('WEBSALES') || lineStr.startsWith('BSP TOTAL')) {
+          continue;
+        }
 
-        // Build token anchor regex for this airline
-        let tokenPattern = numPrefix ? `\\b(${numPrefix}|${code})\\b` : `\\b${code}\\b`;
-        let blockRegex = new RegExp(`${tokenPattern}[\\s\\S]*?(?=\\b\\d{3}\\b|\\bWEBSALES\\b|\\b7120167\\s+TOTALS\\b|$)`, 'gi');
-
-        let match;
-        let cIssues = 0, cRefunds = 0, cCash = 0;
-        let airlineFound = false;
-
-        while ((match = blockRegex.exec(flatText)) !== null) {
-          let block = match[0];
-
-          // Extract CARD Issues & Refunds
-          let cardMatch = block.match(/\bCARD\b[\s\S]*?([-+]?[\d,]+\.\d{2})(?:\s+([-+]?[\d,]+\.\d{2}))?/i);
-          if (cardMatch) {
-            airlineFound = true;
-            if (cardMatch[1]) cIssues += parseFloat(cardMatch[1].replace(/,/g, ''));
-            if (cardMatch[2]) cRefunds += parseFloat(cardMatch[2].replace(/,/g, ''));
+        let prefixMatch = lineStr.match(/^(\d{3})\b/);
+        if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
+          currentCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
+        } else {
+          let matchedTemplate = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
+          if (matchedTemplate) {
+            currentCode = matchedTemplate.code;
           }
+        }
 
-          // Extract CASH Balance Payable
-          let totalMatch = block.match(/\bTOTAL\b[\s\S]*?([-+]?[\d,]+\.\d{2})/i);
-          let cashMatch = block.match(/\bCASH\b[\s\S]*?([-+]?[\d,]+\.\d{2})/i);
+        if (currentCode) {
+          let item = acc.airlineSalesItems.find(a => a.code === currentCode);
+          if (item) {
+            let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
 
-          if (cashMatch || totalMatch) {
-            airlineFound = true;
-            let targetText = totalMatch ? totalMatch[0] : cashMatch[0];
-            let decs = targetText.match(/[-+]?[\d,]+\.\d{2}/g) || [];
-            if (decs.length >= 1) {
-              cCash += parseFloat(decs[decs.length - 1].replace(/,/g, ''));
+            if (lineStr.includes('CARD') && decs.length >= 1) {
+              extractedAny = true;
+              item.cc_issues += decs[0] || 0;
+              item.refunds += decs[1] || 0;
+            } 
+            else if (lineStr.includes('CASH') && decs.length >= 1) {
+              extractedAny = true;
+              item.cash += decs[decs.length - 1] || 0;
+            } 
+            else if (lineStr.startsWith('TOTAL') && decs.length >= 1) {
+              if (item.cash === 0 && !lineStr.includes('AGENT')) {
+                item.cash += decs[decs.length - 1] || 0;
+              }
             }
           }
         }
+      }
 
-        if (airlineFound) {
-          extractedAny = true;
-          let item = acc.airlineSalesItems.find(a => a.code === code);
-          if (item) {
-            item.cash = cCash;
-            item.cc_issues = cIssues;
-            item.refunds = cRefunds;
-          }
-        }
-      });
-
-      if (extractedAny) saveCurrentToHistory();
+      if (extractedAny) {
+        saveCurrentToHistory();
+      }
     }
 
     // PAYMENT DETAILS PARSER
@@ -483,7 +477,6 @@
         tableFooterWrapper.classList.remove('hidden');
         document.getElementById('tableHeaderDueTitle').innerText = 'BSP AIRLINE SALES REPORT';
 
-        // NO IATA COLUMN IN HEADER
         tableColHeaders.innerHTML = `
           <th class="p-3">CODE</th><th class="p-3">AIRLINE NAME</th>
           <th class="p-3 text-right">CASH</th><th class="p-3 text-right">INCENTIVES</th><th class="p-3 text-right">CC ISSUES</th>
@@ -511,7 +504,6 @@
           const tr = document.createElement('tr');
           tr.className = isNonZero ? 'bg-emerald-50 hover:bg-emerald-100 transition border-b border-emerald-200' : 'hover:bg-slate-50 transition border-b border-slate-100';
           
-          // NO IATA COLUMN IN DATA ROWS
           tr.innerHTML = `
             <td class="p-3 font-mono ${isNonZero ? 'text-emerald-900 font-bold' : ''}">${item.code}</td>
             <td class="p-3 font-bold ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
@@ -525,7 +517,6 @@
           tbody.appendChild(tr);
         });
 
-        // RENDER BOTTOM GRAND TOTALS
         tableFooterWrapper.innerHTML = `
           <tr class="bg-purple-100 text-purple-900 font-black border-t-2 border-purple-300">
             <td class="p-3 text-center" colspan="2">GRAND TOTAL:</td>
