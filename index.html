@@ -345,7 +345,7 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // ACCURATE SINGLE-PASS PARSER FOR ALL AIRLINES
+    // ACCURATE SUB-OFFICE BLOCK PARSER (EXACT CASH / CARD / TOTAL MATCHING)
     function parseAirlineSalesPDF(rawText, acc) {
       const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
       const flatText = cleanRawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
@@ -354,48 +354,68 @@
       acc.airlineSalesItems = getFreshAirlineSales();
 
       let extractedAny = false;
-      const lines = cleanRawText.split('\n');
-      let currentCode = null;
 
-      for (let i = 0; i < lines.length; i++) {
-        let lineStr = lines[i].trim();
-        
-        if (!lineStr || lineStr.startsWith('COMBINED') || lineStr.startsWith('WEBSALES') || lineStr.startsWith('BSP TOTAL')) {
-          continue;
-        }
+      // Group raw text by Sub-Office Blocks (e.g. 71-2 0598 2, 71-2 0682 2, 71-2 1306 3...)
+      const subOfficeBlocks = cleanRawText.split(/(?=71-2\s+\d{4}\s+\d)/);
 
-        let prefixMatch = lineStr.match(/^(\d{3})\b/);
-        if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
-          currentCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
-        } else {
-          let matchedTemplate = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
-          if (matchedTemplate) {
-            currentCode = matchedTemplate.code;
+      subOfficeBlocks.forEach(blockText => {
+        const lines = blockText.split('\n');
+        let currentCode = null;
+
+        for (let i = 0; i < lines.length; i++) {
+          let lineStr = lines[i].trim();
+          
+          if (!lineStr || lineStr.startsWith('AGENT GROUP') || lineStr.startsWith('COMBINED') || lineStr.startsWith('WEBSALES') || lineStr.startsWith('BSP TOTAL')) {
+            continue;
           }
-        }
 
-        if (currentCode) {
-          let item = acc.airlineSalesItems.find(a => a.code === currentCode);
-          if (item) {
-            let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
+          // 1. Identify Airline Code in this line
+          let prefixMatch = lineStr.match(/^(\d{3})\b/);
+          if (prefixMatch && NUMERIC_PREFIX_MAP[prefixMatch[1]]) {
+            currentCode = NUMERIC_PREFIX_MAP[prefixMatch[1]];
+          } else {
+            let matchedTemplate = AIRLINE_TEMPLATE_DATA.find(a => new RegExp(`\\b${a.code}\\b`, 'i').test(lineStr));
+            if (matchedTemplate) {
+              currentCode = matchedTemplate.code;
+            }
+          }
 
-            if (lineStr.includes('CARD') && decs.length >= 1) {
-              extractedAny = true;
-              item.cc_issues += decs[0] || 0;
-              item.refunds += decs[1] || 0;
-            } 
-            else if (lineStr.includes('CASH') && decs.length >= 1) {
-              extractedAny = true;
-              item.cash += decs[decs.length - 1] || 0;
-            } 
-            else if (lineStr.startsWith('TOTAL') && decs.length >= 1) {
-              if (item.cash === 0 && !lineStr.includes('AGENT')) {
-                item.cash += decs[decs.length - 1] || 0;
+          // 2. Extract Values for Active Airline
+          if (currentCode) {
+            let item = acc.airlineSalesItems.find(a => a.code === currentCode);
+            if (item) {
+              let decs = (lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || []).map(d => parseFloat(d.replace(/,/g, '')));
+
+              if (lineStr.includes('CARD') && decs.length >= 1) {
+                extractedAny = true;
+                item.cc_issues += decs[0] || 0; // CC ISSUES = 1st decimal
+                item.refunds += decs[1] || 0;   // REFUNDS = 2nd decimal
+              } 
+              else if (lineStr.includes('CASH') && decs.length >= 1) {
+                extractedAny = true;
+                item.cash += decs[decs.length - 1] || 0; // Balance Payable = Far-right decimal
+              } 
+              else if (lineStr.startsWith('TOTAL') && decs.length >= 1) {
+                // If CASH line had no Balance Payable figure on its own row (like SA on Page 8),
+                // take the final Balance Payable from the TOTAL row of this sub-office block
+                if (decs.length >= 1) {
+                  let balPayable = decs[decs.length - 1];
+                  // If cash was not added yet for this block, attribute balance payable
+                  if (item.cash === 0) {
+                    item.cash = balPayable;
+                    extractedAny = true;
+                  }
+                }
               }
             }
           }
+
+          // Reset code when a block totals header is reached
+          if (lineStr.includes('TOTALS:')) {
+            currentCode = null;
+          }
         }
-      }
+      });
 
       if (extractedAny) {
         saveCurrentToHistory();
