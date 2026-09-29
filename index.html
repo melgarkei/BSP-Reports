@@ -39,31 +39,42 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-slate-50 text-slate-800 relative">
 
+  <!-- Top Navigation Header -->
   <header class="bg-almosafer-900 border-b border-almosafer-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center space-x-3">
-          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center"><i class="ph-bold ph-airplane text-2xl"></i></div>
+          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center">
+            <i class="ph-bold ph-airplane text-2xl"></i>
+          </div>
           <div>
-            <div class="flex items-center space-x-2"><h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1><span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span></div>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1>
+              <span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span>
+            </div>
             <p class="text-xs text-almosafer-100/80 font-medium">Reports Extractor</p>
           </div>
         </div>
+
         <div class="flex items-center space-x-3">
           <button onclick="toggleHistoryDrawer()" class="bg-almosafer-700 hover:bg-almosafer-600 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 transition border border-almosafer-500/30">
-            <i class="ph-bold ph-clock-counter-clockwise text-lg"></i><span>History</span>
+            <i class="ph-bold ph-clock-counter-clockwise text-lg"></i>
+            <span>History</span>
           </button>
           <button onclick="exportTwoTabExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 transition shadow-md">
-            <i class="ph-bold ph-file-xls text-lg"></i><span>Export Excel (.xlsx)</span>
+            <i class="ph-bold ph-file-xls text-lg"></i>
+            <span>Export Excel (.xlsx)</span>
           </button>
           <button onclick="window.print()" class="bg-almosafer-800 hover:bg-almosafer-700 text-slate-100 px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 border border-almosafer-700 transition">
-            <i class="ph-bold ph-printer text-lg"></i><span>Print</span>
+            <i class="ph-bold ph-printer text-lg"></i>
+            <span>Print</span>
           </button>
         </div>
       </div>
     </div>
   </header>
 
+  <!-- Top View Switcher & Account Bar -->
   <div class="bg-white border-b border-slate-200 sticky top-16 z-20 no-print shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -75,6 +86,7 @@
             <i class="ph-bold ph-files text-sm"></i><span>Reports</span>
           </button>
         </div>
+        
         <div id="reportDropdownWrapper" class="flex items-center space-x-2">
           <label for="reportTypeSelect" class="text-xs text-slate-500 font-medium whitespace-nowrap">Selected Report:</label>
           <select id="reportTypeSelect" onchange="changeReportType(this.value)" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-coral-500 focus:border-coral-500 font-semibold min-w-[200px]">
@@ -83,6 +95,7 @@
           </select>
         </div>
       </div>
+
       <div id="accountTabsContainer" class="flex items-center justify-between">
         <nav class="flex space-x-2 overflow-x-auto w-full custom-scrollbar" id="accountTabs"></nav>
       </div>
@@ -90,6 +103,8 @@
   </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- DASHBOARD VIEW -->
     <div id="viewDashboard" class="hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-emerald-500">
@@ -107,7 +122,9 @@
       </div>
     </div>
 
+    <!-- REPORTS VIEW -->
     <div id="viewReports" class="space-y-6">
+
       <div class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-almosafer-600 transition-colors relative no-print cursor-pointer shadow-sm" id="dropZone">
         <input type="file" id="pdfFileInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple>
         <div class="flex flex-col items-center justify-center space-y-2">
@@ -132,7 +149,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All airlines parsed and updated.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -319,58 +336,82 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // 1. REWRITTEN ULTRA-ACCURATE AIRLINE SALES PARSER
+    // TOKEN-BASED BLOCK PARSER FOR AIRLINE SALES
     function parseAirlineSalesPDF(rawText, acc) {
       const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
       acc.airlineSalesItems = getFreshAirlineSales();
 
-      // Find all Agent Block Positions
-      const agentRegex = /\b(\d{2}-\d\s\d{4}\s\d|\d{7}\s\d|\d{7})\b/g;
+      // Store IATA Agent blocks
+      const agentRegex = /\b(\d{2}-\d\s\d{4}\s\d|\d{7})\b/g;
       let agents = []; let m;
       while ((m = agentRegex.exec(flatText)) !== null) agents.push({ code: m[1], index: m.index });
 
-      // Scan every airline block: 3-digit code + 2-letter code + Name + CASH/CARD + numbers
-      const salesRegex = /\b(\d{3})\s+([A-Z0-9]{2})\s+((?:(?!\b\d{3}\s+[A-Z0-9]{2}\b).)*?)\s+(CASH|CARD)\s+((?:[-+]?[\d,]+\.\d{2}\s*)+)/gi;
-      let sMatch;
+      // Anchor search using 3-digit numeric airline prefix followed by 2-character code
+      const airlineAnchorRegex = /\b(\d{3})\s+([A-Z0-9]{2})\b/g;
+      let matches = [];
+      let match;
+
+      while ((match = airlineAnchorRegex.exec(flatText)) !== null) {
+        matches.push({
+          numCode: match[1],
+          strCode: match[2].toUpperCase(),
+          index: match.index
+        });
+      }
+
       let extractedAny = false;
 
-      while ((sMatch = salesRegex.exec(flatText)) !== null) {
-        extractedAny = true;
+      for (let i = 0; i < matches.length; i++) {
+        const curr = matches[i];
+        const nextIndex = (i < matches.length - 1) ? matches[i + 1].index : flatText.length;
+        // Limit slice length to prevent overshooting into next pages
+        const blockText = flatText.substring(curr.index, Math.min(nextIndex, curr.index + 400));
+
         let currentIataAgent = acc.meta.iataAccount || '71-2 0167 5';
-        for (let i = agents.length - 1; i >= 0; i--) {
-          if (agents[i].index < sMatch.index) { currentIataAgent = agents[i].code; break; }
+        for (let k = agents.length - 1; k >= 0; k--) {
+          if (agents[k].index < curr.index) { currentIataAgent = agents[k].code; break; }
         }
 
-        let strCode = sMatch[2].toUpperCase();
-        let fop = sMatch[4].toUpperCase();
-        let amounts = sMatch[5].match(/[-+]?[\d,]+\.\d{2}/g) || [];
+        // Look for FOP markers inside this block
+        const fopMatches = [...blockText.matchAll(/\b(CASH|CARD)\b/gi)];
 
-        if (amounts.length >= 1) {
-          let issues = parseFloat((amounts[0] || '0').replace(/,/g, ''));
-          let refunds = parseFloat((amounts[1] || '0').replace(/,/g, ''));
-          // Balance Payable is ALWAYS the second-to-last decimal number on the row (right before doc count)
-          let balancePayable = parseFloat((amounts[amounts.length - 1] || '0').replace(/,/g, ''));
+        if (fopMatches.length > 0) {
+          fopMatches.forEach((fopMatch, fIdx) => {
+            const fop = fopMatch[1].toUpperCase();
+            const fopIndex = fopMatch.index;
+            const subNextIndex = (fIdx < fopMatches.length - 1) ? fopMatches[fIdx + 1].index : blockText.length;
+            const subChunk = blockText.substring(fopIndex, subNextIndex);
 
-          let item = acc.airlineSalesItems.find(a => a.code === strCode);
-          if (!item) {
-            item = { code: strCode, name: sMatch[3].replace(/VAT\s*:\s*\d+/i, '').trim(), iataCode: currentIataAgent, cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
-            acc.airlineSalesItems.push(item);
-          } else {
-            item.iataCode = currentIataAgent;
-          }
+            const decimals = subChunk.match(/[-+]?[\d,]+\.\d{2}/g) || [];
 
-          if (fop === 'CARD') {
-            item.cc_issues += issues;
-            item.refunds += refunds; 
-          } else if (fop === 'CASH') {
-            // CASH IS EXTRACTED FROM BALANCE PAYABLE COLUMN
-            item.cash += balancePayable;
-          }
+            if (decimals.length >= 1) {
+              extractedAny = true;
+              let item = acc.airlineSalesItems.find(a => a.code === curr.strCode);
+
+              if (!item) {
+                // Fallback for airline not present in default template
+                item = { code: curr.strCode, name: curr.strCode, iataCode: currentIataAgent, cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
+                acc.airlineSalesItems.push(item);
+              } else {
+                item.iataCode = currentIataAgent;
+              }
+
+              if (fop === 'CARD') {
+                const issues = parseFloat(decimals[0].replace(/,/g, ''));
+                const refunds = decimals.length >= 2 ? parseFloat(decimals[1].replace(/,/g, '')) : 0;
+                item.cc_issues += issues;
+                item.refunds += refunds;
+              } else if (fop === 'CASH') {
+                const balancePayable = parseFloat(decimals[decimals.length - 1].replace(/,/g, ''));
+                item.cash += balancePayable;
+              }
+            }
+          });
         }
       }
 
-      // Sort: Active Airlines at the top
+      // Auto-Sort active airlines to the top
       acc.airlineSalesItems.sort((a, b) => {
         const aTotal = Math.abs(a.cash) + Math.abs(a.cc_issues) + Math.abs(a.refunds);
         const bTotal = Math.abs(b.cash) + Math.abs(b.cc_issues) + Math.abs(b.refunds);
@@ -380,7 +421,7 @@
       if (extractedAny) saveCurrentToHistory();
     }
 
-    // 2. COMPLETELY INDEPENDENT PAYMENT DETAILS PARSER
+    // PAYMENT DETAILS PARSER
     function parsePaymentDetailsPDF(rawText, acc) {
       const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
@@ -469,14 +510,14 @@
           const isNonZero = item.cash !== 0 || item.cc_issues !== 0 || item.refunds !== 0;
           
           const tr = document.createElement('tr');
-          tr.className = isNonZero ? 'bg-emerald-50 hover:bg-emerald-100 transition border-b border-emerald-200 font-bold' : 'hover:bg-slate-50 transition border-b border-slate-100';
+          tr.className = isNonZero ? 'bg-emerald-50 hover:bg-emerald-100 transition border-b border-emerald-200' : 'hover:bg-slate-50 transition border-b border-slate-100';
           
           tr.innerHTML = `
-            <td class="p-3 font-mono ${isNonZero ? 'text-emerald-900' : ''}">${item.code}</td>
-            <td class="p-3 ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
+            <td class="p-3 font-mono ${isNonZero ? 'text-emerald-900 font-bold' : ''}">${item.code}</td>
+            <td class="p-3 font-bold ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
             <td class="p-3 text-slate-500 text-center text-[10px] whitespace-nowrap">${item.iataCode || '---'}</td>
-            <td class="p-3 text-right ${item.cash ? 'text-emerald-700 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-700 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right ${item.cash ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.refunds ? 'text-coral-600 font-bold' : 'text-slate-400'}">${item.refunds.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right font-black ${isNonZero ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-100/50'}">${total.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
           `;
@@ -706,7 +747,16 @@
 
     function clearAllHistory() {
       if (confirm('Clear all saved report history? This action cannot be undone.')) {
-        reportHistory = []; saveHistoryToStorage(); renderHistoryTree();
+        reportHistory = []; 
+        localStorage.removeItem('bsp_report_history');
+        Object.keys(ACCOUNTS).forEach(k => {
+          ACCOUNTS[k].items = [];
+          ACCOUNTS[k].airlineSalesItems = getFreshAirlineSales();
+          ACCOUNTS[k].meta = { companyName: '', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 };
+        });
+        renderHistoryTree();
+        renderTabs();
+        renderActiveAccountData();
       }
     }
   </script>
