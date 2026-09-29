@@ -65,7 +65,7 @@
               <h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1>
               <span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span>
             </div>
-            <p class="text-xs text-almosafer-100/80 font-medium">Payment Details Extractor (FCGRREMSUM)</p>
+            <p class="text-xs text-almosafer-100/80 font-medium">Reports Extractor</p>
           </div>
         </div>
 
@@ -162,8 +162,8 @@
         <div class="flex flex-col items-center justify-center space-y-2">
           <div class="p-3 bg-almosafer-50 rounded-full text-almosafer-600"><i class="ph-duotone ph-upload-simple text-3xl"></i></div>
           <div>
-            <p class="text-sm font-semibold text-slate-800">Click or Drag & Drop IATA BSP PDF (FCGRREMSUM) here</p>
-            <p class="text-xs text-slate-500 mt-1">Automatically extracts Location Breakdown & Airline Sales figures (Cash, Cards, Refunds).</p>
+            <p class="text-sm font-semibold text-slate-800">Click or Drag & Drop IATA BSP PDF here</p>
+            <p class="text-xs text-slate-500 mt-1">Upload the PDF matching your currently selected report type.</p>
           </div>
           <div id="fileProcessingBadge" class="hidden items-center space-x-2 text-xs bg-almosafer-50 text-almosafer-700 px-3 py-1 rounded-full border border-almosafer-200">
             <i class="ph-bold ph-spinner animate-spin"></i><span id="processingText">Processing PDF...</span>
@@ -195,7 +195,7 @@
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
           <div>
             <p class="font-bold text-emerald-800">Automatic PDF Extraction Completed</p>
-            <p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data successfully parsed from the document stream.</p>
+            <p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data successfully parsed for the selected report.</p>
           </div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
@@ -220,7 +220,7 @@
             <thead class="bg-almosafer-600 text-xs uppercase font-bold text-white">
               <tr>
                 <th class="p-3 text-center bg-almosafer-700 font-black text-white underline tracking-wider" colspan="10" id="tableHeaderDueTitle">
-                  BSP TRANSFER - DUE DATE <span id="thPaymentDueDate">---</span>
+                  REPORT DATA <span id="thPaymentDueDate">---</span>
                 </th>
               </tr>
               <tr class="bg-almosafer-600 text-white" id="tableColHeaders"></tr>
@@ -235,6 +235,7 @@
           </table>
         </div>
 
+        <!-- Pivots are only visible on Payment Details Report -->
         <div id="pivotContainer" class="hidden border-t-4 border-almosafer-800 bg-slate-50 p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div>
@@ -404,13 +405,14 @@
         const btn = document.createElement('button');
         btn.onclick = () => { activeAccountKey = key; renderTabs(); renderActiveAccountData(); };
         btn.className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg font-semibold text-xs transition whitespace-nowrap ${isActive ? 'bg-almosafer-600 text-white shadow-sm font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
-        btn.innerHTML = `<span>${acc.name}</span><span class="px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-coral-500 text-white font-bold' : 'bg-slate-200 text-slate-500'}">${acc.items.length}</span>`;
+        btn.innerHTML = `<span>${acc.name}</span><span class="px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-coral-500 text-white font-bold' : 'bg-slate-200 text-slate-500'}">${acc.reportType === 'airline_sales' ? acc.airlineSalesItems.filter(i=>i.cash||i.cc_issues||i.refunds).length : acc.items.length}</span>`;
         container.appendChild(btn);
       });
     }
 
     function changeReportType(val) {
       ACCOUNTS[activeAccountKey].reportType = val;
+      renderTabs(); // Refresh counters
       renderActiveAccountData();
     }
 
@@ -442,7 +444,14 @@
             const textContent = await page.getTextContent();
             fullText += textContent.items.map(i => i.str).join(' ') + '\n';
           }
-          extractRemittanceData(fullText);
+          
+          // ROUTE EXTRACTION BASED ON SELECTED REPORT TYPE
+          if (ACCOUNTS[activeAccountKey].reportType === 'airline_sales') {
+            parseAirlineSalesPDF(fullText, ACCOUNTS[activeAccountKey]);
+          } else {
+            parsePaymentDetailsPDF(fullText, ACCOUNTS[activeAccountKey]);
+          }
+
         } catch (err) {
           alert('PDF Reading Error: ' + err.message);
         }
@@ -454,10 +463,7 @@
       e.target.value = '';
     }
 
-    function extractRemittanceData(text) {
-      const acc = ACCOUNTS[activeAccountKey];
-
-      // Meta Extraction
+    function extractCommonMeta(text, acc) {
       const companyMatch = text.match(/(\d{7}|\d{2}\s\d\s\d{4}\s\d)\s*-\s*([A-Z\s,]+(?:CO\.|WLL|LIMITED|TRAVEL|SERVICES|L\.L\.C|UAE)?)/i);
       if (companyMatch) {
         acc.meta.iataAccount = companyMatch[1].trim();
@@ -472,78 +478,97 @@
 
       const headerTotalMatch = text.match(/(?:REMITTANCE TOTAL|REMITTANCE|TOTAL)[\s\S]*?([-+]?[\d,]+\.\d{2})/i);
       if (headerTotalMatch) acc.meta.remittanceTotalHeader = parseFloat(headerTotalMatch[1].replace(/,/g, ''));
+    }
 
-      // Scan Agents dynamically through the document
-      const agentRegex = /\b(\d{2}-\d\s\d{4}\s\d|\d{7})\b/g;
-      let agents = [];
-      let m;
-      while ((m = agentRegex.exec(text)) !== null) {
-         agents.push({ code: m[1], index: m.index });
-      }
+    // 1. DEDICATED AIRLINE SALES PARSER
+    function parseAirlineSalesPDF(text, acc) {
+      extractCommonMeta(text, acc);
+      acc.airlineSalesItems = getFreshAirlineSales(); // Reset data
 
-      acc.airlineSalesItems = getFreshAirlineSales();
-      let parsedPaymentItems = [];
-      let extractedAnyAirline = false;
+      const lines = text.split('\n');
+      let currentIataAgent = acc.meta.iataAccount || '';
+      let extractedAny = false;
 
-      // STREAM SCANNER: Flexible regex looking for AIR CODE + NAME + FOP + Any number of floating decimal figures.
-      const airlineSalesRegex = /(\d{3})\s+([A-Z0-9]{2})\s+(.*?)\s+(CASH|CARD)\s+([-+]?[\d,]+\.\d{2}(?:\s+[-+]?[\d,]+\.\d{2})+)/gi;
-      let salesMatch;
-      
-      while ((salesMatch = airlineSalesRegex.exec(text)) !== null) {
-        extractedAnyAirline = true;
-        let idx = salesMatch.index;
-        let currentIataAgent = acc.meta.iataAccount || '';
-        
-        for (let i = agents.length - 1; i >= 0; i--) {
-          if (agents[i].index < idx) { currentIataAgent = agents[i].code; break; }
+      lines.forEach(line => {
+        let cleanLine = line.replace(/\s+/g, ' ').trim();
+
+        // 1. Check if the line sets an IATA Agent Code
+        let agentMatch = cleanLine.match(/(\d{2}-\d\s\d{4}\s\d|\d{7})/);
+        if (agentMatch) {
+          currentIataAgent = agentMatch[1];
         }
 
-        let strCode = salesMatch[2];
-        let fop = salesMatch[4].toUpperCase();
-        let amountsStr = salesMatch[5];
-        let amounts = amountsStr.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+        // 2. Check for an Airline row: 3-digits + 2-chars + Name + CASH/CARD + numbers
+        let rowMatch = cleanLine.match(/^(\d{3})\s+([A-Z0-9]{2})\s+(.+?)\s+(CASH|CARD)\s+(.*)$/i);
+        if (rowMatch) {
+          let strCode = rowMatch[2];
+          let fop = rowMatch[4].toUpperCase();
+          let numString = rowMatch[5];
 
-        if (amounts.length >= 2) {
-          let issues = parseFloat((amounts[0] || '0').replace(/,/g, ''));
-          let refunds = parseFloat((amounts[1] || '0').replace(/,/g, ''));
-          let balPayable = parseFloat((amounts[amounts.length - 1] || '0').replace(/,/g, ''));
+          // Extract all decimal formatted numbers on this line
+          let numbers = numString.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+          
+          if (numbers.length >= 2) {
+            extractedAny = true;
+            
+            // CARD = 1st is Issues, 2nd is Refunds
+            // CASH = Last decimal is Balance Payable (Regex naturally ignores trailing '1' doc count)
+            let issues = parseFloat(numbers[0].replace(/,/g, ''));
+            let refunds = parseFloat(numbers[1].replace(/,/g, ''));
+            let balancePayable = parseFloat(numbers[numbers.length - 1].replace(/,/g, ''));
 
-          let item = acc.airlineSalesItems.find(a => a.code === strCode);
-          if (!item) {
-            item = { code: strCode, name: salesMatch[3].replace(/VAT\s*:\s*\d+/i, '').trim(), iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
-            acc.airlineSalesItems.push(item);
+            let item = acc.airlineSalesItems.find(a => a.code === strCode);
+            if (!item) {
+              item = { code: strCode, name: rowMatch[3].trim(), iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
+              acc.airlineSalesItems.push(item);
+            }
+            
+            item.iataCode = currentIataAgent || acc.meta.iataAccount || '71-2 0167 5';
+
+            if (fop === 'CARD') {
+              item.cc_issues += issues;
+              item.refunds += refunds; // usually negative
+            } else if (fop === 'CASH') {
+              item.cash += balancePayable;
+            }
           }
-          item.iataCode = currentIataAgent;
+        }
+      });
 
-          if (fop === 'CARD') {
-            item.cc_issues += issues;
-            item.refunds += refunds;
-          } else if (fop === 'CASH') {
-            item.cash += balPayable;
+      if (extractedAny) saveCurrentToHistory();
+    }
+
+    // 2. DEDICATED PAYMENT DETAILS PARSER (Original working method)
+    function parsePaymentDetailsPDF(text, acc) {
+      extractCommonMeta(text, acc);
+      const parsedPaymentItems = [];
+      const lines = text.split('\n');
+
+      lines.forEach(line => {
+        let cleanLine = line.replace(/\s+/g, ' ').trim();
+
+        if (activeAccountKey === 'uae') {
+          let uaeMatch = cleanLine.match(/^(\d{3})\s+([A-Z0-9]{2})\s+(.+?)\s+([0-9]{2}[A-Z]{3}[0-9]{2})\s+([-+]?[\d,]+\.\d{2})/i);
+          if (uaeMatch) {
+            parsedPaymentItems.push({
+              iataNo: `${uaeMatch[1]} ${uaeMatch[2]}`,
+              location: uaeMatch[3].trim(),
+              amount: parseFloat(uaeMatch[5].replace(/,/g, ''))
+            });
+          }
+        } else {
+          let ksaMatch = cleanLine.match(/(\d{2}-\d\s\d{4}\s\d)\s+([A-Z]{2}|HE|AE)\s+(.+?)\s+([-+]?[\d,]+\.\d{2})$/i);
+          if (ksaMatch) {
+            parsedPaymentItems.push({
+              iataNo: ksaMatch[1],
+              location: ksaMatch[3].replace(/ALMOSAFER/gi, '').trim(),
+              amount: parseFloat(ksaMatch[4].replace(/,/g, ''))
+            });
           }
         }
-      }
+      });
 
-      // Traditional Location Payment Parsing
-      if (activeAccountKey === 'uae') {
-        const uaeRegex = /(\d{3})\s+([A-Z0-9]{2})\s+([A-Za-z\s.\-(/)]+?)\s+([0-9]{2}[A-Z]{3}[0-9]{2})\s+([-+]?[\d,]+\.\d{2})/g;
-        let match;
-        while ((match = uaeRegex.exec(text)) !== null) {
-          parsedPaymentItems.push({
-            iataNo: `${match[1]} ${match[2]}`, location: match[3].trim(), amount: parseFloat(match[5].replace(/,/g, ''))
-          });
-        }
-      } else {
-        const lineRegex = /(\d{2}-\d\s\d{4}\s\d)\s+([A-Z]{2}|HE|AE)\s+(.*?)\s+([-+]?[\d,]+\.\d{2})/g;
-        let match;
-        while ((match = lineRegex.exec(text)) !== null) {
-          parsedPaymentItems.push({
-            iataNo: match[1], location: match[3].replace(/ALMOSAFER/gi, '').trim(), amount: parseFloat(match[4].replace(/,/g, ''))
-          });
-        }
-      }
-
-      if (parsedPaymentItems.length > 0 || extractedAnyAirline) {
+      if (parsedPaymentItems.length > 0) {
         acc.items = parsedPaymentItems;
         saveCurrentToHistory();
       }
@@ -554,7 +579,7 @@
       let year = '2026', month = 'September';
       const record = {
         id: Date.now(), year: year, accountId: acc.id, accountName: acc.name, month: month,
-        billingPeriod: acc.meta.billingPeriod, reportType: 'Payment Details Report',
+        billingPeriod: acc.meta.billingPeriod, reportType: acc.reportType,
         meta: { ...acc.meta }, items: [...acc.items], airlineSalesItems: [...acc.airlineSalesItems],
         createdDate: new Date().toLocaleDateString()
       };
@@ -603,6 +628,10 @@
           <th class="p-3 italic font-serif text-right">NET TOTAL</th>
         `;
 
+        const hasSalesData = acc.airlineSalesItems.some(i => i.cash || i.cc_issues || i.refunds);
+        document.getElementById('emptyState').classList.toggle('hidden', hasSalesData);
+        document.getElementById('crossCheckBanner').classList.toggle('hidden', !hasSalesData);
+
         acc.airlineSalesItems.forEach(item => {
           const total = item.cash + item.cc_issues + item.refunds;
           const tr = document.createElement('tr');
@@ -610,7 +639,7 @@
           tr.innerHTML = `
             <td class="p-3 font-mono">${item.code}</td>
             <td class="p-3 font-bold">${item.name}</td>
-            <td class="p-3 text-slate-500 text-center text-[10px]">${item.iataCode || '---'}</td>
+            <td class="p-3 text-slate-500 text-center text-[10px] whitespace-nowrap">${item.iataCode || '---'}</td>
             <td class="p-3 text-right ${item.cash ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
             <td class="p-3 text-right ${item.refunds ? 'text-coral-600 font-bold' : 'text-slate-400'}">${item.refunds.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
@@ -618,6 +647,7 @@
           `;
           tbody.appendChild(tr);
         });
+
       } else {
         tableFooterWrapper.classList.remove('hidden');
         document.getElementById('tableHeaderDueTitle').innerText = `BSP TRANSFER - DUE DATE ${acc.meta.paymentDueDate || '---'}`;
@@ -628,15 +658,24 @@
           tableColHeaders.innerHTML = `<th class="p-3 italic font-serif">IATA NO.</th><th class="p-3 italic font-serif">LOCATION</th><th class="p-3 italic font-serif text-right">AMOUNT (${acc.currency})</th>`;
         }
 
+        document.getElementById('emptyState').classList.toggle('hidden', acc.items.length > 0);
+        document.getElementById('crossCheckBanner').classList.toggle('hidden', acc.items.length === 0);
+
         let total = 0;
-        acc.items.forEach(item => {
+        acc.items.forEach((item, index) => {
           total += item.amount;
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
           tr.innerHTML = `
-            <td class="p-3">${item.iataNo}</td>
-            <td class="p-3">${item.location}</td>
-            <td class="p-3 text-right font-bold text-emerald-600">${item.amount.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3">
+              <input type="text" value="${item.iataNo}" onchange="updateItem(${index}, 'iataNo', this.value)" class="bg-transparent border border-transparent hover:border-slate-300 rounded px-1 w-full font-mono">
+            </td>
+            <td class="p-3">
+              <input type="text" value="${item.location}" onchange="updateItem(${index}, 'location', this.value)" class="bg-transparent border border-transparent hover:border-slate-300 rounded px-1 w-full">
+            </td>
+            <td class="p-3 text-right font-bold text-emerald-600">
+              <input type="number" step="0.01" value="${item.amount}" onchange="updateItem(${index}, 'amount', this.value)" class="bg-transparent text-right border border-transparent hover:border-slate-300 rounded px-1 w-32">
+            </td>
           `;
           tbody.appendChild(tr);
         });
@@ -645,9 +684,6 @@
         if (activeAccountKey !== 'uae') renderPivotTables(acc.items, acc.currency);
         else pivotContainer.classList.add('hidden');
       }
-
-      document.getElementById('emptyState').classList.toggle('hidden', acc.items.length > 0 || acc.airlineSalesItems.some(i => i.cash || i.cc_issues || i.refunds));
-      document.getElementById('crossCheckBanner').classList.toggle('hidden', acc.items.length === 0 && !acc.airlineSalesItems.some(i => i.cash || i.cc_issues || i.refunds));
     }
 
     function renderPivotTables(items, currency) {
@@ -677,13 +713,24 @@
       document.getElementById('regionalPivotTotalAmount').innerText = `${regionalGrandTotal.toLocaleString(undefined, {minimumFractionDigits:2})} ${currency}`;
     }
 
-    function clearCurrentAccountData() {
-      ACCOUNTS[activeAccountKey].items = [];
-      ACCOUNTS[activeAccountKey].airlineSalesItems = getFreshAirlineSales();
+    function updateItem(index, field, val) {
+      const item = ACCOUNTS[activeAccountKey].items[index];
+      if (field === 'amount') item.amount = parseFloat(val) || 0;
+      else item[field] = val;
       renderActiveAccountData();
     }
 
-    // EXCEL FULL EXPORT ROUTER
+    function clearCurrentAccountData() {
+      if (ACCOUNTS[activeAccountKey].reportType === 'airline_sales') {
+        ACCOUNTS[activeAccountKey].airlineSalesItems = getFreshAirlineSales();
+      } else {
+        ACCOUNTS[activeAccountKey].items = [];
+      }
+      renderTabs();
+      renderActiveAccountData();
+    }
+
+    // EXCEL EXPORT
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
 
@@ -720,7 +767,7 @@
         return;
       }
 
-      // ROUTE 2: NORMAL PAYMENT DETAILS REPORT EXPORT (Full 2-Tab Code Restored)
+      // ROUTE 2: NORMAL PAYMENT DETAILS REPORT EXPORT
       if (!acc.items.length) {
         alert('No data available to export. Please upload a PDF file first.');
         return;
