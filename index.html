@@ -39,19 +39,13 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-slate-50 text-slate-800 relative">
 
-  <!-- Navigation Header -->
   <header class="bg-almosafer-900 border-b border-almosafer-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center space-x-3">
-          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center">
-            <i class="ph-bold ph-airplane text-2xl"></i>
-          </div>
+          <div class="bg-almosafer-600 p-2.5 rounded-lg text-white shadow-md flex items-center justify-center"><i class="ph-bold ph-airplane text-2xl"></i></div>
           <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1>
-              <span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span>
-            </div>
+            <div class="flex items-center space-x-2"><h1 class="text-lg font-black tracking-wider text-white uppercase">Almosafer</h1><span class="text-xs px-2 py-0.5 rounded bg-coral-500 text-white font-bold tracking-widest">BSP</span></div>
             <p class="text-xs text-almosafer-100/80 font-medium">Reports Extractor</p>
           </div>
         </div>
@@ -71,7 +65,6 @@
     </div>
   </header>
 
-  <!-- View Switcher & Account Tabs -->
   <div class="bg-white border-b border-slate-200 sticky top-16 z-20 no-print shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -100,8 +93,6 @@
   </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-    <!-- DASHBOARD VIEW -->
     <div id="viewDashboard" class="hidden space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm border-l-4 border-l-emerald-500">
@@ -119,9 +110,7 @@
       </div>
     </div>
 
-    <!-- REPORTS VIEW -->
     <div id="viewReports" class="space-y-6">
-
       <div class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-6 text-center hover:border-almosafer-600 transition-colors relative no-print cursor-pointer shadow-sm" id="dropZone">
         <input type="file" id="pdfFileInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple>
         <div class="flex flex-col items-center justify-center space-y-2">
@@ -146,7 +135,7 @@
       <div id="crossCheckBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between no-print">
         <div class="flex items-center space-x-2">
           <i class="ph-bold ph-check-circle text-emerald-600 text-lg"></i>
-          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">All Cash, Card Issues, and Refunds correctly processed.</p></div>
+          <div><p class="font-bold text-emerald-800">Extraction Successful</p><p class="text-emerald-700 text-[11px]" id="crossCheckDetails">Data matched and loaded for current report.</p></div>
         </div>
         <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">Extracted</span>
       </div>
@@ -172,9 +161,7 @@
               <tr class="bg-almosafer-600 text-white" id="tableColHeaders"></tr>
             </thead>
             <tbody id="reportTableBody" class="divide-y divide-slate-200 font-mono text-xs"></tbody>
-            <tfoot class="bg-slate-100 border-t-2 border-slate-300 font-bold" id="tableFooterWrapper">
-              <!-- Footers populated dynamically -->
-            </tfoot>
+            <tfoot class="bg-slate-100 border-t-2 border-slate-300 font-bold" id="tableFooterWrapper"></tfoot>
           </table>
         </div>
 
@@ -215,10 +202,24 @@
   </aside>
 
   <script>
-    // PRESERVED ORIGINAL TEMPLATE ORDER WITH CORRECT XB MAPPING
     const AIRLINE_TEMPLATE_DATA = [
       { code: 'AA', name: 'AMERICAN AIRLINES' }, { code: 'CO', name: 'CONTINENTAL AIRLINES' }, { code: 'DL', name: 'DELTA AIRLINES' }, { code: 'Z5', name: 'GMG AIRLINE' }, { code: 'AC', name: 'AIR CANADA' }, { code: 'UA', name: 'UNITED AIRLINES' }, { code: 'US', name: 'US AIRWAYS' }, { code: 'TP', name: 'TAP PORTUGAL' }, { code: 'CY', name: 'CYPRUS AIRWAYS' }, { code: 'EI', name: 'AER LINGUS' }, { code: 'AZ', name: 'ALITALIA' }, { code: 'AF', name: 'AIR FRANCE' }, { code: 'HM', name: 'AIR SEYCHELLES' }, { code: 'OK', name: 'CZECH AIRLINES' }, { code: 'SV', name: 'SAUDI ARABIAN AIRLINES' }, { code: '8Q', name: 'ONUR AIR TASIMACILIK' }, { code: 'RB', name: 'SYRIAN AIRLINES' }, { code: 'ET', name: 'ETHEOPEAN AIRLINES' }, { code: 'GF', name: 'GULF AIR' }, { code: 'KL', name: 'KLM-ROYAL DUTCH AIR' }, { code: 'ME', name: 'MEA-MIDDLE EAST AIRLINES' }, { code: 'MS', name: 'EGYPT AIR' }, { code: 'PR', name: 'PHILIPPINE AIRLINES' }, { code: 'QF', name: 'QANTAS AIRWAYS' }, { code: 'SA', name: 'SOUTH AFRICAN AIRWAYS' }, { code: 'IT', name: 'KING FISHER AIRLINES' }, { code: 'AI', name: 'AIR INDIA' }, { code: 'FI', name: 'ICE LAND AIRLINES' }, { code: 'UJ', name: 'ALMASRIA UNIVERSAL' }, { code: 'KW', name: 'WATANIA AIRWAYS' }, { code: 'SK', name: 'SAS SCANDINAVIAN' }, { code: 'BA', name: 'BRITISH AIRWAYS' }, { code: 'GA', name: 'GARUDA INDONESIA' }, { code: 'AM', name: 'AERO MEXICO' }, { code: 'FZ', name: 'FLY DUBAI' }, { code: 'AT', name: 'ROYAL AIR MAROC' }, { code: 'QR', name: 'QATAR AIRWAYS' }, { code: 'CX', name: 'CATHAY PACIFIC AIRWAYS' }, { code: 'HR', name: 'HAHN AIR' }, { code: 'EK', name: 'EMIRATES' }, { code: 'KE', name: 'KOREAN AIR' }, { code: 'TU', name: 'TUNIS AIR' }, { code: 'SD', name: 'SUDAN AIRWAYS' }, { code: 'PK', name: "PAKISTAN INT'L AIRLINES" }, { code: 'LH', name: 'LUFTHANSA' }, { code: 'UK', name: 'TATA SIA AIRLINES' }, { code: 'KU', name: 'KUWAIT AIRWAYS' }, { code: 'MH', name: 'MALAYSIAN AIRLINES' }, { code: 'TK', name: 'TURKISH AIRLINES' }, { code: 'MD', name: 'AIR MADAGASCAR' }, { code: 'MK', name: 'AIR MAURITIUS' }, { code: 'OS', name: 'AUSTRAIN AIRLINES' }, { code: 'GP', name: 'APG AIRLINES' }, { code: 'NP', name: 'NILE AIR' }, { code: 'SM', name: 'AIR CAIRO' }, { code: 'W2', name: 'FLEX FLIGHT' }, { code: 'A3', name: 'AGEAN AIRLINES' }, { code: 'S7', name: 'SIBERIA AIRLINES' }, { code: 'VL', name: 'MED VIEW AIRLINES' }, { code: 'NE', name: 'NESMA AIRLINES' }, { code: 'J9', name: 'JAZEERA AIRWAYS' }, { code: 'RJ', name: 'ROYAL JORDANIAN' }, { code: '8U', name: 'AFRIQIYAH AIRWAYS' }, { code: 'SU', name: 'AEROFLOT RUSSIAN AIR' }, { code: 'PS', name: 'UKRAIN INTERNAT' }, { code: '9W', name: 'JET AIRWAYS' }, { code: 'XY', name: 'NASAIR COMPANY LTD' }, { code: 'UL', name: 'SRILANKAN AIRLINES' }, { code: 'EY', name: 'ETIHAD AIRWAYS' }, { code: 'KK', name: 'ATLAS JET' }, { code: 'SQ', name: 'SINGAPORE AIRLINES' }, { code: 'PC', name: 'PEGASUS HAVA TASIMAC' }, { code: 'TZ', name: 'SCOOT PRIVATE LTD' }, { code: 'H9', name: 'HIMALAYA AIRLINES PV' }, { code: 'IY', name: 'YEMEN AIRWAYS' }, { code: '4Q', name: 'SAFI AIRWAYS' }, { code: 'S2', name: 'SAHARA AIRLINES' }, { code: 'KQ', name: 'KENYA AIRWAYS' }, { code: 'LX', name: 'SWISS INTERNATIONAL' }, { code: 'AB', name: 'AIR BERLINE' }, { code: 'YO', name: 'HELI AIR MONACO' }, { code: 'J2', name: 'AZERBAIJAN HAVA VOLL' }, { code: 'CZ', name: 'CHINA SOUTHERN AIR' }, { code: 'VA', name: 'VERGIN AUSTRALIA' }, { code: 'OD', name: 'MALINDO AIR' }, { code: 'WY', name: 'OMAN AIR' }, { code: 'ZS', name: 'SAMA AIR' }, { code: 'VS', name: 'VIRGIN ATLANTIC' }, { code: 'UX', name: 'AIR EUROPA LINEAS AE' }, { code: 'BG', name: 'BIMAN-BANGLADESH' }, { code: 'CA', name: 'AIR CHINA' }, { code: 'D3', name: 'DALLOO AIRLINES' }, { code: 'FG', name: 'AREANA AFGHAN' }, { code: 'G9', name: 'AIR ARABIA' }, { code: 'B8', name: 'ERITREAN AIR' }, { code: '2B', name: 'BAHRAIN AIR' }, { code: 'BI', name: 'ROYAL BRUNEI AIRLINES' }, { code: '4H', name: 'UNITED AIRWAYS' }, { code: 'SZ', name: 'SOMON AIR' }, { code: 'FS', name: 'SYPHAX AIRLINES' }, { code: 'NR', name: 'PAMIR AIRWAYS' }, { code: 'RL', name: 'ROYAL FALCON' }, { code: 'RT', name: 'RAK AIRWAYS' }, { code: 'FO', name: 'FELIX AIR' }, { code: 'AH', name: 'AIR ALGERIE' }, { code: 'SH', name: 'SHAHEEN' }, { code: 'R5', name: 'JORDAN AVIATION' }, { code: '6S', name: 'SAUDI GULF AIRLINES' }, { code: 'MJ', name: 'Myway Airlines' }, { code: 'N4', name: 'LLC "Nord Wind"' }, { code: 'DV', name: 'JSC Aircompany' }, { code: 'TR', name: 'Scoot Tigerair Pte' }, { code: 'I5', name: 'AIR ASIA' }, { code: 'XO', name: 'EXCHANGE ORDERS' }, { code: 'RA', name: 'Nepal Airlines' }, { code: 'TG', name: 'THAI AIR LINES' }, { code: 'ER', name: 'Serene Air' }, { code: 'LO', name: 'LOT Polish' }, { code: 'KP', name: 'ASKY AIRLINE' }, { code: 'BS', name: 'US-Bangla Airlines' }, { code: 'DQ', name: 'Alexandria Airlines' }, { code: 'MF', name: 'Xiamen Airlines' }, { code: 'XB', name: 'International Air Transport Association' }, { code: 'ZU', name: 'Ethiopian Mozambique Airlines' }, { code: 'K3', name: 'SAC (K) LIMITED' }, { code: 'DT', name: 'TAAG Angola Airlines' }, { code: 'B4', name: 'Beond-Simdi Operations Private' }, { code: 'P4', name: 'Air Peace Ltd.' }, { code: '953', name: 'IATA-LOCAL' }, { code: '954', name: 'IATA-GDS' }, { code: '956', name: 'BSP-CHGS' }, { code: 'Q4', name: 'Euroairlines, S.L.' }, { code: 'HC', name: 'HC Air Senegal S.A.' }, { code: 'VF', name: 'VF AJet Hava Tasimaciligi Anonim' }, { code: 'MU', name: 'MU China Eastern Airlines' }, { code: 'BR', name: 'BR EVA Airways Corporation' }, { code: 'BJ', name: 'Nouvelair Tunisie' }, { code: '56', name: 'International Air Transport As' }, { code: 'RQ', name: 'Kam Air dba Kam Air' }, { code: 'J4', name: 'Badr Airlines dba Badr Airline' }, { code: 'IF', name: 'ISLAS AIRLINE' }, { code: 'KC', name: 'AIR ASTANA' }, { code: 'JL', name: 'JAPAN AIRLINES' }, { code: 'F3', name: 'FLYADEAL LLC' }, { code: 'HU', name: 'HAINAN AIRLINES CO.LTD' }, { code: 'RX', name: 'AVIATION SERVICES COMPANY Dba' }, { code: 'WB', name: 'Rwand Air limited' }, { code: '5J', name: 'Cebu Air, Inc dba Cebu Pacific Air' }
     ];
+
+    // MAP 3-DIGIT NUMERIC PREFIXES TO 2-CHARACTER ALPHA CODES
+    const NUMERIC_PREFIX_MAP = {
+      '001': 'AA', '006': 'DL', '014': 'AC', '016': 'UA', '047': 'TP', '055': 'AZ', '057': 'AF', '065': 'SV',
+      '071': 'ET', '072': 'GF', '074': 'KL', '076': 'ME', '077': 'MS', '079': 'PR', '080': 'LO', '081': 'QF',
+      '083': 'SA', '098': 'AI', '108': 'FI', '117': 'SK', '122': 'RX', '124': 'AH', '125': 'BA', '126': 'GA',
+      '131': 'JL', '139': 'AM', '141': 'FZ', '147': 'AT', '151': 'R5', '157': 'QR', '160': 'CX', '169': 'HR',
+      '176': 'EK', '180': 'KE', '199': 'TU', '203': '5J', '204': 'VF', '214': 'PK', '217': 'TG', '220': 'LH',
+      '229': 'KU', '232': 'MH', '235': 'TK', '239': 'MK', '275': 'GP', '285': 'RA', '291': 'Q4', '325': 'NP',
+      '365': 'W2', '367': 'J4', '381': 'SM', '384': 'RQ', '390': 'A3', '477': 'NE', '512': 'RJ', '514': 'G9',
+      '516': 'QP', '560': 'F3', '593': 'XY', '603': 'UL', '607': 'EY', '618': 'SQ', '624': 'PC', '668': 'TR',
+      '672': 'BI', '706': 'KQ', '710': 'P4', '724': 'LX', '731': 'MF', '769': 'H9', '771': 'J2', '779': 'BS',
+      '781': 'MU', '784': 'CZ', '796': 'BJ', '816': 'OD', '880': 'HU', '910': 'WY', '932': 'VS', '952': 'XB',
+      '953': '953', '954': '954', '956': '956', '996': 'UX', '997': 'BG', '999': 'CA'
+    };
 
     function getFreshAirlineSales() {
       return JSON.parse(JSON.stringify(AIRLINE_TEMPLATE_DATA)).map(item => ({ ...item, cash: 0, incentives: 0, cc_issues: 0, refunds: 0 }));
@@ -334,60 +335,99 @@
       if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1];
     }
 
-    // ACCURATE AIRLINE SALES PARSER WITH XB FIX & NO SORT ALTERATION
+    // ACCURATE CONSOLIDATED AIRLINE SALES PARSER
     function parseAirlineSalesPDF(rawText, acc) {
-      // 1. Clean PDF.js decimal string fusion issue (e.g. "-684.00001" -> "-684.00")
-      const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
-      const flatText = cleanRawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
+      const flatText = rawText.replace(/\n/g, ' ').replace(/\s+/g, ' ');
       extractCommonMeta(rawText, flatText, acc);
       acc.airlineSalesItems = getFreshAirlineSales();
 
       let extractedAny = false;
-      const lines = cleanRawText.split('\n');
 
-      lines.forEach(line => {
-        let lineStr = line.trim();
+      // Method 1: Look for 7120167 TOTALS grand summary section at end of PDF
+      let pos = rawText.indexOf("7120167 TOTALS");
+      if (pos !== -1) {
+        let totSec = rawText.substring(pos);
+        let totLines = totSec.split('\n');
 
-        // Skip Totals and Header summary lines
-        if (lineStr.startsWith('AGENT') || lineStr.startsWith('COMBINED') || lineStr.startsWith('TOTAL')) return;
+        for (let idx = 0; idx < totLines.length; idx++) {
+          let lineS = totLines[idx].trim();
+          let m = lineS.match(/^(\d{3})\b/);
+          if (m) {
+            let numCode = m[1];
+            let blockLines = [lineS];
+            let j = idx + 1;
+            while (j < totLines.length) {
+              let nextLine = totLines[j].trim();
+              if (/^\d{3}\b/.test(nextLine) || nextLine.includes('WEBSALES') || nextLine.includes('TOTALS')) {
+                if (nextLine.startsWith('TOTAL')) blockLines.push(nextLine);
+                break;
+              }
+              blockLines.push(nextLine);
+              j++;
+            }
 
-        // Check each known airline code from template
-        AIRLINE_TEMPLATE_DATA.forEach(airline => {
-          let code = airline.code;
-          
-          // Specific XB check: Match either 'XB' or 'International Air Transport'
-          let isMatch = false;
-          if (code === 'XB') {
-            isMatch = (/\bXB\b/i.test(lineStr) || /International\s+Air\s+Transport/i.test(lineStr)) && (lineStr.includes('CASH') || lineStr.includes('CARD'));
-          } else {
-            let codeRegex = new RegExp(`\\b${code}\\b`, 'i');
-            isMatch = codeRegex.test(lineStr) && (lineStr.includes('CASH') || lineStr.includes('CARD'));
-          }
+            let twoCharCode = NUMERIC_PREFIX_MAP[numCode];
+            let cardIss = 0.0, cardRef = 0.0, balPay = 0.0;
 
-          if (isMatch) {
-            // Extract decimal figures from this line
-            let rawDecimals = lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || [];
-            let decimals = rawDecimals.map(d => parseFloat(d.replace(/,/g, '')));
+            blockLines.forEach(bl => {
+              if (bl.includes('CARD')) {
+                let decs = bl.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+                if (decs.length >= 1) cardIss = parseFloat(decs[0].replace(/,/g, ''));
+                if (decs.length >= 2) cardRef = parseFloat(decs[1].replace(/,/g, ''));
+              }
+              if (bl.startsWith('TOTAL')) {
+                let decs = bl.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+                if (decs.length >= 1) balPay = parseFloat(decs[decs.length - 1].replace(/,/g, ''));
+              }
+            });
 
-            if (decimals.length >= 1) {
-              let item = acc.airlineSalesItems.find(a => a.code === code);
+            if (twoCharCode) {
+              let item = acc.airlineSalesItems.find(a => a.code === twoCharCode);
               if (item) {
                 extractedAny = true;
-
-                if (lineStr.includes('CARD')) {
-                  item.cc_issues += decimals[0] || 0;
-                  item.refunds += decimals[1] || 0; // Negative refunds
-                } else if (lineStr.includes('CASH')) {
-                  // Rule: CASH column gets BALANCE PAYABLE (the last decimal entry on the line)
-                  item.cash += decimals[decimals.length - 1] || 0;
-                }
+                item.cash = balPay;
+                item.cc_issues = cardIss;
+                item.refunds = cardRef;
               }
             }
           }
-        });
-      });
+        }
+      }
 
-      // NO AUTO-SORTING (Keeps original template order: AA, CO, DL, Z5, AC...)
+      // Method 2: Fallback page-by-page scanning if grand summary section is absent
+      if (!extractedAny) {
+        const cleanRawText = rawText.replace(/([-+]?\d{1,3}(?:,\d{3})*\.\d{2})\d{3,5}/g, '$1');
+        const lines = cleanRawText.split('\n');
+
+        lines.forEach(line => {
+          let lineStr = line.trim();
+          if (lineStr.startsWith('AGENT') || lineStr.startsWith('COMBINED') || lineStr.startsWith('TOTAL')) return;
+
+          AIRLINE_TEMPLATE_DATA.forEach(airline => {
+            let code = airline.code;
+            let codeRegex = new RegExp(`\\b${code}\\b`, 'i');
+
+            if (codeRegex.test(lineStr) && (lineStr.includes('CASH') || lineStr.includes('CARD'))) {
+              let rawDecimals = lineStr.match(/[-+]?[\d,]+\.\d{2}/g) || [];
+              let decimals = rawDecimals.map(d => parseFloat(d.replace(/,/g, '')));
+
+              if (decimals.length >= 1) {
+                let item = acc.airlineSalesItems.find(a => a.code === code);
+                if (item) {
+                  extractedAny = true;
+                  if (lineStr.includes('CARD')) {
+                    item.cc_issues += decimals[0] || 0;
+                    item.refunds += decimals[1] || 0;
+                  } else if (lineStr.includes('CASH')) {
+                    item.cash += decimals[decimals.length - 1] || 0;
+                  }
+                }
+              }
+            }
+          });
+        });
+      }
+
       if (extractedAny) saveCurrentToHistory();
     }
 
@@ -494,6 +534,7 @@
           const tr = document.createElement('tr');
           tr.className = isNonZero ? 'bg-emerald-50 hover:bg-emerald-100 transition border-b border-emerald-200' : 'hover:bg-slate-50 transition border-b border-slate-100';
           
+          // NO IATA COLUMN IN DATA ROWS
           tr.innerHTML = `
             <td class="p-3 font-mono ${isNonZero ? 'text-emerald-900 font-bold' : ''}">${item.code}</td>
             <td class="p-3 font-bold ${isNonZero ? 'text-emerald-900' : ''}">${item.name}</td>
