@@ -270,7 +270,7 @@
           </div>
           <div>
             <p class="text-sm font-semibold text-slate-800">Click or Drag & Drop IATA BSP PDF (FCGRREMSUM) here</p>
-            <p class="text-xs text-slate-500 mt-1">Parses Company Name, IATA Account, Billing Period, Remittance Date, Locations / Airline Billed Amounts</p>
+            <p class="text-xs text-slate-500 mt-1">Extracts Locations, Air Codes, Cash Balances, Card Issues, and Refunds automatically</p>
           </div>
           <div id="fileProcessingBadge" class="hidden items-center space-x-2 text-xs bg-almosafer-50 text-almosafer-700 px-3 py-1 rounded-full border border-almosafer-200">
             <i class="ph-bold ph-spinner animate-spin"></i>
@@ -337,14 +337,12 @@
           <table class="w-full text-left text-sm text-slate-700">
             <thead class="bg-almosafer-600 text-xs uppercase font-bold text-white">
               <tr>
-                <th class="p-3 text-center bg-almosafer-700 font-black text-white underline tracking-wider" colspan="3" id="tableHeaderDueTitle">
+                <th class="p-3 text-center bg-almosafer-700 font-black text-white underline tracking-wider" colspan="10" id="tableHeaderDueTitle">
                   BSP TRANSFER - DUE DATE <span id="thPaymentDueDate">---</span>
                 </th>
               </tr>
               <tr class="bg-almosafer-600 text-white" id="tableColHeaders">
-                <th class="p-3 italic font-serif" id="thCol1">IATA NO.</th>
-                <th class="p-3 italic font-serif" id="thCol2">Location / Airline</th>
-                <th class="p-3 italic font-serif text-right" id="thCol3">Amount (<span class="accountCurrencySpan">SAR</span>)</th>
+                <!-- Headers are populated dynamically based on Report Selection -->
               </tr>
             </thead>
             <tbody id="reportTableBody" class="divide-y divide-slate-200 font-mono text-xs">
@@ -517,6 +515,12 @@
       { code: '5J', name: 'Cebu Air, Inc dba Cebu Pacific Air' }
     ];
 
+    function getFreshAirlineSales() {
+      return JSON.parse(JSON.stringify(AIRLINE_TEMPLATE_DATA)).map(item => ({
+        ...item, iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0
+      }));
+    }
+
     // Saudi Arabia Geographic Region Lookup Engine
     const REGION_MAP = {
       'RIYADH': 'Central Region', 'BURAYDAH': 'Central Region', 'AL-QASSIM': 'Central Region', 'QASSIM': 'Central Region',
@@ -531,74 +535,39 @@
     // Configurable Account Settings with Account-Specific Vendor Postings
     const ACCOUNTS = {
       ksa: { 
-        id: 'ksa', 
-        name: 'KSA Account', 
-        currency: 'SAR',
-        companyNameHeader: 'ALMOSAFER TRAVEL AND TOURISM COMPANY',
-        companyCode: '1002',
-        vendorCode: '8800003',
-        province: 'MOSAFER-KSA',
-        paymentLabel: 'PAYMENTS-KSA RUH',
-        iban: 'SA3345000000511201675060',
-        reportType: 'payment_details',
+        id: 'ksa', name: 'KSA Account', currency: 'SAR',
+        companyNameHeader: 'ALMOSAFER TRAVEL AND TOURISM COMPANY', companyCode: '1002', vendorCode: '8800003',
+        province: 'MOSAFER-KSA', paymentLabel: 'PAYMENTS-KSA RUH', iban: 'SA3345000000511201675060', reportType: 'payment_details',
         meta: { companyName: 'ALMOSAFER TRAVEL AND TOURISM COMPANY', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [] 
+        items: [], airlineSalesItems: getFreshAirlineSales()
       },
       uae: { 
-        id: 'uae', 
-        name: 'UAE Account', 
-        currency: 'AED',
-        companyNameHeader: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE',
-        companyCode: '2001',
-        vendorCode: '8800209',
-        province: 'MOSAFER-UAE(AED)',
-        paymentLabel: 'PAYMENTS-UAE-AED',
-        iban: 'AE170440000001231995003',
-        reportType: 'payment_details',
+        id: 'uae', name: 'UAE Account', currency: 'AED',
+        companyNameHeader: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE', companyCode: '2001', vendorCode: '8800209',
+        province: 'MOSAFER-UAE(AED)', paymentLabel: 'PAYMENTS-UAE-AED', iban: 'AE170440000001231995003', reportType: 'payment_details',
         meta: { companyName: 'ALMOSAFER HOLIDAYS TRAVEL AND TOURISM L.L.C UAE', iataAccount: '86 2 1100 5', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [] 
+        items: [], airlineSalesItems: getFreshAirlineSales()
       },
       kuwait: { 
-        id: 'kuwait', 
-        name: 'Kuwait Account', 
-        currency: 'KWD',
-        companyNameHeader: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT',
-        companyCode: '3001',
-        vendorCode: '8800005',
-        province: 'MOSAFER-KWT',
-        paymentLabel: 'PAYMENTS-KWT KWI',
-        iban: 'KW987654321098765432109',
-        reportType: 'payment_details',
+        id: 'kuwait', name: 'Kuwait Account', currency: 'KWD',
+        companyNameHeader: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT', companyCode: '3001', vendorCode: '8800005',
+        province: 'MOSAFER-KWT', paymentLabel: 'PAYMENTS-KWT KWI', iban: 'KW987654321098765432109', reportType: 'payment_details',
         meta: { companyName: 'ALMOSAFER TRAVEL & TOURISM WLL KUWAIT', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [] 
+        items: [], airlineSalesItems: getFreshAirlineSales()
       },
       almousim1: { 
-        id: 'almousim1', 
-        name: 'Almousim 1', 
-        currency: 'SAR',
-        companyNameHeader: 'ALMOUSIM TRAVEL AND TOURISM',
-        companyCode: '1003',
-        vendorCode: '8800006',
-        province: 'ALMOUSIM-1',
-        paymentLabel: 'PAYMENTS-ALM 1',
-        iban: 'SA1111000000511201675001',
-        reportType: 'payment_details',
+        id: 'almousim1', name: 'Almousim 1', currency: 'SAR',
+        companyNameHeader: 'ALMOUSIM TRAVEL AND TOURISM', companyCode: '1003', vendorCode: '8800006',
+        province: 'ALMOUSIM-1', paymentLabel: 'PAYMENTS-ALM 1', iban: 'SA1111000000511201675001', reportType: 'payment_details',
         meta: { companyName: 'ALMOUSIM TRAVEL AND TOURISM', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [] 
+        items: [], airlineSalesItems: getFreshAirlineSales()
       },
       almousim2: { 
-        id: 'almousim2', 
-        name: 'Almousim 2', 
-        currency: 'SAR',
-        companyNameHeader: 'ALMOUSIM SERVICES',
-        companyCode: '1004',
-        vendorCode: '8800007',
-        province: 'ALMOUSIM-2',
-        paymentLabel: 'PAYMENTS-ALM 2',
-        iban: 'SA2222000000511201675002',
-        reportType: 'payment_details',
+        id: 'almousim2', name: 'Almousim 2', currency: 'SAR',
+        companyNameHeader: 'ALMOUSIM SERVICES', companyCode: '1004', vendorCode: '8800007',
+        province: 'ALMOUSIM-2', paymentLabel: 'PAYMENTS-ALM 2', iban: 'SA2222000000511201675002', reportType: 'payment_details',
         meta: { companyName: 'ALMOUSIM SERVICES', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 },
-        items: [] 
+        items: [], airlineSalesItems: getFreshAirlineSales()
       }
     };
 
@@ -625,19 +594,15 @@
       if (view === 'dashboard') {
         vDash.classList.remove('hidden');
         vRep.classList.add('hidden');
-        
         btnDash.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-almosafer-600 text-white shadow-sm';
         btnRep.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200';
-        
         accTabsContainer.classList.add('hidden');
         dropWrapper.classList.add('hidden');
       } else {
         vDash.classList.add('hidden');
         vRep.classList.remove('hidden');
-
         btnRep.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-almosafer-600 text-white shadow-sm';
         btnDash.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200';
-
         accTabsContainer.classList.remove('hidden');
         dropWrapper.classList.remove('hidden');
       }
@@ -646,9 +611,7 @@
     function loadHistoryFromStorage() {
       try {
         const stored = localStorage.getItem('bsp_report_history');
-        if (stored) {
-          reportHistory = JSON.parse(stored);
-        }
+        if (stored) reportHistory = JSON.parse(stored);
       } catch (e) {
         reportHistory = [];
       }
@@ -666,7 +629,6 @@
       const drawer = document.getElementById('historyDrawer');
       const overlay = document.getElementById('historyOverlay');
       const isHidden = drawer.classList.contains('translate-x-full');
-
       if (isHidden) {
         renderHistoryTree();
         drawer.classList.remove('translate-x-full');
@@ -680,19 +642,14 @@
     function renderTabs() {
       const container = document.getElementById('accountTabs');
       container.innerHTML = '';
-
       Object.keys(ACCOUNTS).forEach(key => {
         const acc = ACCOUNTS[key];
         const isActive = key === activeAccountKey;
-
         const btn = document.createElement('button');
         btn.onclick = () => switchAccount(key);
         btn.className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg font-semibold text-xs transition whitespace-nowrap ${
-          isActive 
-            ? 'bg-almosafer-600 text-white shadow-sm font-bold' 
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          isActive ? 'bg-almosafer-600 text-white shadow-sm font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }`;
-
         btn.innerHTML = `
           <span>${acc.name}</span>
           <span class="px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-coral-500 text-white font-bold' : 'bg-slate-200 text-slate-500'}">
@@ -743,14 +700,12 @@
       try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
         let fullText = '';
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
           const textContent = await page.getTextContent();
           fullText += textContent.items.map(i => i.str).join(' ') + '\n';
         }
-
         extractRemittanceData(fullText);
       } catch (err) {
         alert('PDF Parsing Error: ' + err.message);
@@ -759,16 +714,15 @@
 
     function cleanLocationName(rawLoc) {
       if (!rawLoc) return '';
-      return rawLoc
-        .replace(/INTERNATIONAL\s+TRAVEL\s+(AND|&)\s+TOURISM\s+(CO\.|COMPANY|CO)?/gi, '')
-        .replace(/TRAVEL\s+(AND|&)\s+TOURISM\s+(CO\.|COMPANY|CO)?/gi, '')
-        .replace(/ALMOSAFER/gi, '')
-        .trim();
+      return rawLoc.replace(/INTERNATIONAL\s+TRAVEL\s+(AND|&)\s+TOURISM\s+(CO\.|COMPANY|CO)?/gi, '')
+                   .replace(/TRAVEL\s+(AND|&)\s+TOURISM\s+(CO\.|COMPANY|CO)?/gi, '')
+                   .replace(/ALMOSAFER/gi, '').trim();
     }
 
     function extractRemittanceData(text) {
       const acc = ACCOUNTS[activeAccountKey];
 
+      // 1. Meta Extraction
       const companyMatch = text.match(/(\d{7}|\d{2}\s\d\s\d{4}\s\d)\s*-\s*([A-Z\s,]+(?:CO\.|WLL|LIMITED|TRAVEL|SERVICES|L\.L\.C|UAE)?)/i);
       if (companyMatch) {
         acc.meta.iataAccount = companyMatch[1].trim();
@@ -780,27 +734,57 @@
       const periodMatch = text.match(/(?:Billing Period|PERIOD)[:\s]*[0-9A-Z]*\s*\(([0-9]{2}-[A-Z]{3}-[0-9]{4}\s*to\s*[0-9]{2}-[A-Z]{3}-[0-9]{4})\)/i) ||
                           text.match(/([0-9]{2}\s*[A-Z]{3}\s*[0-9]{2,4}\s*-\s*[0-9]{2}\s*[A-Z]{3}\s*[0-9]{2,4})/i) ||
                           text.match(/([0-9]{2}[A-Z]{3}[0-9]{2})/i);
-      if (periodMatch) {
-        acc.meta.billingPeriod = periodMatch[1].startsWith('(') ? periodMatch[1] : `(${periodMatch[1]})`;
-      }
+      if (periodMatch) acc.meta.billingPeriod = periodMatch[1].startsWith('(') ? periodMatch[1] : `(${periodMatch[1]})`;
 
       const dueDateMatch = text.match(/(?:REMITTANCE TOTAL|BSP TOTAL|DUE DATE|TRANSFER -DUE DATE)[\s\S]*?(\d{2}[-/][A-Z0-9]{2,3}[-/]\d{2,4})/i);
-      if (dueDateMatch) {
-        acc.meta.paymentDueDate = dueDateMatch[1].replace(/[/]/g, '-').toUpperCase();
-      }
+      if (dueDateMatch) acc.meta.paymentDueDate = dueDateMatch[1].replace(/[/]/g, '-').toUpperCase();
 
       const headerTotalMatch = text.match(/(?:REMITTANCE TOTAL|REMITTANCE|TOTAL)[\s\S]*?([-+]?[\d,]+\.\d{2})/i);
-      if (headerTotalMatch) {
-        acc.meta.remittanceTotalHeader = parseFloat(headerTotalMatch[1].replace(/,/g, ''));
+      if (headerTotalMatch) acc.meta.remittanceTotalHeader = parseFloat(headerTotalMatch[1].replace(/,/g, ''));
+
+      // Find current specific IATA agent string globally to apply to Airlines
+      const agentRegex = /\b(\d{2}-\d\s\d{4}\s\d)\b/;
+      const agentCodeMatch = text.match(agentRegex);
+      const specificIataCode = agentCodeMatch ? agentCodeMatch[1] : '';
+
+      // 2. Extract Data for BOTH Payment Details AND Airline Sales Report templates simultaneously
+      const parsedPaymentItems = [];
+      acc.airlineSalesItems = getFreshAirlineSales(); // Reset template state
+
+      // Airline Sales Regex (Code, Name, FOP, Issues, Refunds, Debits, Credits, Taxes, EffComm, TaxComm, BalPayable, Docs)
+      const airlineSalesRegex = /(\d{3})\s+([A-Z0-9]{2})\s+(.*?)\s+(CASH|CARD)\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+([-+]?[\d,]+\.\d{2})\s+(\d+)/g;
+      let salesMatch;
+      
+      while ((salesMatch = airlineSalesRegex.exec(text)) !== null) {
+        const code = salesMatch[2]; // Two-char code
+        const name = salesMatch[3];
+        const fop = salesMatch[4];
+        const issues = parseFloat(salesMatch[5].replace(/,/g, ''));
+        const refunds = parseFloat(salesMatch[6].replace(/,/g, ''));
+        const balPayable = parseFloat(salesMatch[12].replace(/,/g, ''));
+
+        // Inject into Airline Sales Template structure
+        let item = acc.airlineSalesItems.find(a => a.code === code);
+        if (!item) {
+          item = { code: code, name: name, iataCode: '', cash: 0, incentives: 0, cc_issues: 0, refunds: 0 };
+          acc.airlineSalesItems.push(item); // Append if airline not in default template list
+        }
+        item.iataCode = specificIataCode || acc.meta.iataAccount;
+
+        if (fop === 'CASH') {
+          item.cash += balPayable;
+        } else if (fop === 'CARD') {
+          item.cc_issues += issues;
+          item.refunds += refunds; // usually negative
+        }
       }
 
-      const parsedItems = [];
-
+      // Traditional Payment Items Parsing (Location Breakdown or UAE Billed Amounts)
       if (activeAccountKey === 'uae') {
         const uaeRegex = /(\d{3})\s+([A-Z0-9]{2})\s+([A-Za-z\s.\-(/)]+?)\s+([0-9]{2}[A-Z]{3}[0-9]{2})\s+([-+]?[\d,]+\.\d{2})/g;
         let match;
         while ((match = uaeRegex.exec(text)) !== null) {
-          parsedItems.push({
+          parsedPaymentItems.push({
             iataNo: `${match[1]} ${match[2]}`,
             location: match[3].trim(),
             amount: parseFloat(match[5].replace(/,/g, ''))
@@ -811,7 +795,7 @@
         let match;
         while ((match = lineRegex.exec(text)) !== null) {
           const cleanedLoc = cleanLocationName(match[3]);
-          parsedItems.push({
+          parsedPaymentItems.push({
             iataNo: match[1],
             location: cleanedLoc || match[3].trim(),
             amount: parseFloat(match[4].replace(/,/g, ''))
@@ -819,8 +803,8 @@
         }
       }
 
-      if (parsedItems.length > 0) {
-        acc.items = parsedItems;
+      if (parsedPaymentItems.length > 0 || acc.airlineSalesItems.some(i => i.cash !== 0 || i.cc_issues !== 0 || i.refunds !== 0)) {
+        acc.items = parsedPaymentItems;
         saveCurrentToHistory();
       }
     }
@@ -833,9 +817,7 @@
       let month = 'September';
 
       const yearMatch = acc.meta.billingPeriod.match(/\d{2}-[A-Z]{3}-(\d{4})/i) || acc.meta.billingPeriod.match(/\d{2}[A-Z]{3}(\d{2})/i);
-      if (yearMatch) {
-        year = yearMatch[1].length === 2 ? `20${yearMatch[1]}` : yearMatch[1];
-      }
+      if (yearMatch) year = yearMatch[1].length === 2 ? `20${yearMatch[1]}` : yearMatch[1];
 
       const monthMatch = acc.meta.billingPeriod.match(/\d{2}-?([A-Z]{3})-?\d{2,4}/i) || acc.meta.billingPeriod.match(/\d{2}([A-Z]{3})\d{2}/i);
       if (monthMatch) {
@@ -858,6 +840,7 @@
         reportType: 'Payment Details Report',
         meta: { ...acc.meta },
         items: [...acc.items],
+        airlineSalesItems: [...acc.airlineSalesItems],
         createdDate: new Date().toLocaleDateString()
       };
 
@@ -876,17 +859,13 @@
       document.getElementById('metaBillingPeriod').innerText = acc.meta.billingPeriod || '---';
       document.getElementById('previewBillingPeriod').innerText = acc.meta.billingPeriod || '---';
       document.getElementById('metaPaymentDueDate').innerText = acc.meta.paymentDueDate || '---';
-      document.getElementById('thPaymentDueDate').innerText = acc.meta.paymentDueDate || '---';
 
       document.getElementById('reportTypeSelect').value = acc.reportType;
 
       const currencySpans = document.querySelectorAll('.accountCurrencySpan');
       currencySpans.forEach(s => s.innerText = acc.currency);
 
-      const thCol1 = document.getElementById('thCol1');
-      const thCol2 = document.getElementById('thCol2');
-      const thCol3 = document.getElementById('thCol3');
-
+      const tableColHeaders = document.getElementById('tableColHeaders');
       const tbody = document.getElementById('reportTableBody');
       const emptyState = document.getElementById('emptyState');
       const crossCheckBanner = document.getElementById('crossCheckBanner');
@@ -902,22 +881,33 @@
         emptyState.classList.add('hidden');
         tableFooterWrapper.classList.add('hidden');
 
-        thCol1.innerText = 'CODE';
-        thCol2.innerText = 'AIRLINE NAME';
-        thCol3.innerHTML = 'CASH / INCENTIVES / CC SALES';
+        document.getElementById('tableHeaderDueTitle').innerText = 'BSP AIRLINE SALES REPORT - LIVE EXTRACTION PREVIEW';
 
-        AIRLINE_TEMPLATE_DATA.forEach((item, index) => {
+        tableColHeaders.innerHTML = `
+          <th class="p-3 italic font-serif">CODE</th>
+          <th class="p-3 italic font-serif">AIRLINE NAME</th>
+          <th class="p-3 italic font-serif text-center">IATA NO.</th>
+          <th class="p-3 italic font-serif text-right">CASH</th>
+          <th class="p-3 italic font-serif text-right">CC ISSUES</th>
+          <th class="p-3 italic font-serif text-right">REFUNDS</th>
+          <th class="p-3 italic font-serif text-right">NET TOTAL</th>
+        `;
+
+        acc.airlineSalesItems.forEach((item, index) => {
+          const total = item.cash + item.cc_issues + item.refunds; // Refunds are extracted as negative from PDF
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-slate-50 transition';
           tr.innerHTML = `
             <td class="p-3 text-slate-700 font-mono">${item.code}</td>
             <td class="p-3 text-slate-700 font-bold">${item.name}</td>
-            <td class="p-3 text-right text-slate-400 italic">Template (Export to Fill)</td>
+            <td class="p-3 text-slate-500 text-center text-[10px] whitespace-nowrap tracking-wider">${item.iataCode || '---'}</td>
+            <td class="p-3 text-right ${item.cash ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cash.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right ${item.cc_issues ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.cc_issues.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right ${item.refunds ? 'text-coral-600 font-bold' : 'text-slate-400'}">${item.refunds.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td class="p-3 text-right font-black text-almosafer-800 bg-slate-100/50">${total.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
           `;
           tbody.appendChild(tr);
         });
-
-        document.getElementById('tableHeaderDueTitle').innerText = 'AIRLINE SALES REPORT TEMPLATE PREVIEW';
         return;
       }
 
@@ -926,13 +916,17 @@
       document.getElementById('tableHeaderDueTitle').innerText = `BSP TRANSFER - DUE DATE ${acc.meta.paymentDueDate || '---'}`;
 
       if (activeAccountKey === 'uae') {
-        thCol1.innerText = 'AIR CODE';
-        thCol2.innerText = 'AIRLINE NAME';
-        thCol3.innerHTML = `BILLED AMOUNT (${acc.currency})`;
+        tableColHeaders.innerHTML = `
+          <th class="p-3 italic font-serif" id="thCol1">AIR CODE</th>
+          <th class="p-3 italic font-serif" id="thCol2">AIRLINE NAME</th>
+          <th class="p-3 italic font-serif text-right" id="thCol3">BILLED AMOUNT (${acc.currency})</th>
+        `;
       } else {
-        thCol1.innerText = 'IATA NO.';
-        thCol2.innerText = 'LOCATION';
-        thCol3.innerHTML = `AMOUNT (${acc.currency})`;
+        tableColHeaders.innerHTML = `
+          <th class="p-3 italic font-serif" id="thCol1">IATA NO.</th>
+          <th class="p-3 italic font-serif" id="thCol2">LOCATION</th>
+          <th class="p-3 italic font-serif text-right" id="thCol3">AMOUNT (${acc.currency})</th>
+        `;
       }
 
       if (!acc.items.length) {
@@ -1063,6 +1057,7 @@
     function clearCurrentAccountData() {
       if (confirm(`Clear report data for ${ACCOUNTS[activeAccountKey].name}?`)) {
         ACCOUNTS[activeAccountKey].items = [];
+        ACCOUNTS[activeAccountKey].airlineSalesItems = getFreshAirlineSales();
         ACCOUNTS[activeAccountKey].meta = { companyName: '', iataAccount: '', billingPeriod: '', paymentDueDate: '', remittanceTotalHeader: 0 };
         renderTabs();
         renderActiveAccountData();
@@ -1159,12 +1154,9 @@
                 itemCard.innerHTML = `
                   <div class="cursor-pointer flex-1 min-w-0" onclick="loadHistoryItem(${rep.id})">
                     <p class="text-xs font-bold text-slate-800 truncate">${rep.billingPeriod}</p>
-                    <p class="text-[10px] text-coral-600 font-semibold truncate">${rep.reportType}</p>
+                    <p class="text-[10px] text-coral-600 font-semibold truncate">Parsed Report</p>
                   </div>
                   <div class="flex items-center space-x-1 pl-2">
-                    <button onclick="exportHistoryItemExcel(${rep.id})" title="Export Excel" class="p-1 text-emerald-600 hover:bg-emerald-100 rounded transition">
-                      <i class="ph-bold ph-file-xls text-sm"></i>
-                    </button>
                     <button onclick="deleteHistoryItem(${rep.id})" title="Delete" class="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition">
                       <i class="ph-bold ph-trash text-sm"></i>
                     </button>
@@ -1207,7 +1199,9 @@
       activeAccountKey = item.accountId;
       ACCOUNTS[activeAccountKey].meta = { ...item.meta };
       ACCOUNTS[activeAccountKey].items = [...item.items];
-      ACCOUNTS[activeAccountKey].reportType = 'payment_details'; // Default to normal view when loading history
+      if (item.airlineSalesItems) {
+        ACCOUNTS[activeAccountKey].airlineSalesItems = [...item.airlineSalesItems];
+      }
 
       renderTabs();
       renderActiveAccountData();
@@ -1230,22 +1224,17 @@
       }
     }
 
-    function exportHistoryItemExcel(id) {
-      const item = reportHistory.find(r => r.id === id);
-      if (item) exportSingleReportExcel(item);
-    }
-
     // EXCEL EXPORT ROUTER
     async function exportTwoTabExcel() {
       const acc = ACCOUNTS[activeAccountKey];
 
-      // Route 1: Airline Sales Template Export
+      // Route 1: Airline Sales Report Export
       if (acc.reportType === 'airline_sales') {
-        exportAirlineSalesTemplate(acc);
+        exportAirlineSalesExcel(acc);
         return;
       }
 
-      // Route 2: Normal Extracted Payment Details Export
+      // Route 2: Normal Payment Details Export
       if (!acc.items.length) {
         alert('No data available to export. Please upload a PDF file first.');
         return;
@@ -1258,8 +1247,8 @@
       });
     }
 
-    // EXPORT GENERATOR 1: AIRLINE SALES TEMPLATE
-    async function exportAirlineSalesTemplate(acc) {
+    // EXPORT GENERATOR 1: AIRLINE SALES REPORT WITH LIVE EXCEL FORMULAS
+    async function exportAirlineSalesExcel(acc) {
       const meta = acc.meta;
       const workbook = new ExcelJS.Workbook();
       const ws = workbook.addWorksheet('Airline Sales Report', { views: [{ showGridLines: true }] });
@@ -1270,18 +1259,19 @@
 
       // Company Name Header
       const r1 = ws.addRow([meta.companyName || acc.companyNameHeader || 'ALMOSAFER TRAVEL AND TOURISM COMPANY']);
-      ws.mergeCells(r1.number, 1, r1.number, 6);
+      ws.mergeCells(r1.number, 1, r1.number, 9);
       r1.getCell(1).font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FFFF0000' } };
       r1.getCell(1).alignment = { horizontal: 'center' };
 
       // Net BSP Sales Header
-      const r2 = ws.addRow([`NET BSP SALES CASH AND CARD ${meta.billingPeriod ? meta.billingPeriod.replace(/[()]/g, '') : ''}`]);
-      ws.mergeCells(r2.number, 1, r2.number, 6);
+      const periodShort = meta.billingPeriod ? meta.billingPeriod.replace(/[()]/g, '') : '';
+      const r2 = ws.addRow([`NET BSP SALES CASH AND CARD ${periodShort}`]);
+      ws.mergeCells(r2.number, 1, r2.number, 9);
       r2.getCell(1).font = { name: 'Calibri', size: 11, bold: true };
       r2.getCell(1).alignment = { horizontal: 'center' };
 
       // Table Column Headers
-      const h = ws.addRow(['Code', 'AIRLINE', 'CASH', 'INCENTIVES', 'CC SALES', 'TOTAL']);
+      const h = ws.addRow(['Code', 'AIRLINE', 'IATA NO.', 'CASH', 'INCENTIVES', 'CC ISSUES', 'REFUNDS', 'NET CC SALES', 'TOTAL']);
       h.eachCell(cell => {
         cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: tealHeaderColor } };
@@ -1291,13 +1281,25 @@
 
       // Populate Airlines
       let rowStartIndex = 4;
-      AIRLINE_TEMPLATE_DATA.forEach((item, idx) => {
-        // Embed live sum formula in the Excel sheet
-        const row = ws.addRow([item.code, item.name, 0, 0, 0, { formula: `SUM(C${rowStartIndex}:E${rowStartIndex})` }]);
+      acc.airlineSalesItems.forEach((item, idx) => {
+        // Embed live sum formulas in the Excel sheet
+        const row = ws.addRow([
+          item.code, 
+          item.name, 
+          item.iataCode || '', 
+          item.cash || 0, 
+          item.incentives || 0, 
+          item.cc_issues || 0, 
+          item.refunds || 0, 
+          { formula: `F${rowStartIndex}+G${rowStartIndex}` }, // Net CC Sales = Issues + Refunds (since refunds are negative)
+          { formula: `D${rowStartIndex}+E${rowStartIndex}+H${rowStartIndex}` } // Total = Cash + Inc + Net CC Sales
+        ]);
+        
         row.getCell(1).alignment = { horizontal: 'center' };
         row.getCell(2).alignment = { horizontal: 'left' };
+        row.getCell(3).alignment = { horizontal: 'center' };
         
-        [3, 4, 5, 6].forEach(colIdx => {
+        [4, 5, 6, 7, 8, 9].forEach(colIdx => {
            row.getCell(colIdx).numFmt = '#,##0.00';
         });
 
@@ -1311,27 +1313,33 @@
       // Bottom Grand Total Row with embedded column sum formulas
       const totalRow = ws.addRow([
         '', 
-        'TOTAL', 
-        { formula: `SUM(C4:C${rowStartIndex-1})` }, 
+        'TOTAL',
+        '', 
         { formula: `SUM(D4:D${rowStartIndex-1})` }, 
         { formula: `SUM(E4:E${rowStartIndex-1})` }, 
-        { formula: `SUM(F4:F${rowStartIndex-1})` }
+        { formula: `SUM(F4:F${rowStartIndex-1})` }, 
+        { formula: `SUM(G4:G${rowStartIndex-1})` }, 
+        { formula: `SUM(H4:H${rowStartIndex-1})` },
+        { formula: `SUM(I4:I${rowStartIndex-1})` }
       ]);
       
       totalRow.eachCell((cell, colNumber) => {
         cell.font = { name: 'Calibri', size: 11, bold: true };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: totalFillColor } };
         cell.border = { top: { style: 'thin' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
-        if (colNumber > 2) cell.numFmt = '#,##0.00';
+        if (colNumber > 3) cell.numFmt = '#,##0.00';
         if (colNumber === 2) cell.alignment = { horizontal: 'right' };
       });
 
-      ws.getColumn(1).width = 10;
-      ws.getColumn(2).width = 35;
-      ws.getColumn(3).width = 18;
-      ws.getColumn(4).width = 18;
-      ws.getColumn(5).width = 18;
-      ws.getColumn(6).width = 18;
+      ws.getColumn(1).width = 8;
+      ws.getColumn(2).width = 34;
+      ws.getColumn(3).width = 16;
+      ws.getColumn(4).width = 16;
+      ws.getColumn(5).width = 14;
+      ws.getColumn(6).width = 16;
+      ws.getColumn(7).width = 16;
+      ws.getColumn(8).width = 16;
+      ws.getColumn(9).width = 18;
 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -1339,7 +1347,7 @@
       const a = document.createElement('a');
       a.href = url;
       
-      const cleanBillingPeriod = meta.billingPeriod ? meta.billingPeriod.replace(/[()]/g, '') : 'Template';
+      const cleanBillingPeriod = periodShort || 'Report';
       a.download = `${cleanBillingPeriod}_BSP Airline Sales Report.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
@@ -1350,11 +1358,6 @@
       const acc = ACCOUNTS[record.accountId] || ACCOUNTS[activeAccountKey];
       const items = record.items || acc.items;
       const meta = record.meta || acc.meta;
-
-      if (!items.length) {
-        alert('No data available to export.');
-        return;
-      }
 
       const workbook = new ExcelJS.Workbook();
       const tealHeaderColor = 'FF006778';
